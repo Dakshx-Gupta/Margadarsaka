@@ -19,18 +19,12 @@ Margadarsaka is an intelligent, open-source career advisor designed to help user
 - **Languages:** (Python)
 - **Backend:** (Google Cloud)
 - **Frontend:** (Streamlit)
-- **Database:** ()
+- **Database:** (Mysql)
 
 
 ---
 
 ## ⚡ Getting Started
-
-### Prerequisites
-
-- Node.js (vXX+)
-- npm or yarn
-- (Any database or API keys required)
 
 ### Installation
 
