@@ -28,12 +28,6 @@ Margadarsaka is an intelligent, open-source career advisor designed to help user
 
 This project is licensed under the [MIT License](LICENSE).
 
----
-
-## 🙌 Acknowledgements
-
-- Thanks to all contributors and users!
-- Inspired by open-source career guidance and AI projects.
 
 ---
 
