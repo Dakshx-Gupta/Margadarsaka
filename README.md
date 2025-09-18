@@ -19,7 +19,6 @@ Margadarsaka is an intelligent, open-source career advisor designed to help user
 - **Languages:** (Python)
 - **Backend:** (Google Cloud)
 - **Frontend:** (Streamlit)
-- **Database:** (Mysql)
 
 
 ---
