@@ -1,0 +1,56 @@
+# Docker Compose for Margadarsaka local development
+# Supports both Doppler secrets and environment variables
+
+version: '3.8'
+
+services:
+  margadarsaka:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+      - "8501:8501"
+    environment:
+      # Fallback environment variables (can be overridden by .env file)
+      - ENVIRONMENT=development
+      - DEBUG=true
+      - API_BASE_URL=http://localhost:8000
+      - UI_BASE_URL=http://localhost:8501
+      - SECRET_KEY=dev-secret-key-change-in-production
+      - DATABASE_URL=sqlite:///margadarsaka.db
+      - GEMINI_API_KEY=your_gemini_api_key_here
+      - LOG_LEVEL=INFO
+      - ENABLE_AI_FEATURES=true
+      # Doppler token (if using Doppler)
+      - DOPPLER_TOKEN=${DOPPLER_TOKEN:-}
+    volumes:
+      # Mount data directory for persistence
+      - ./data:/app/data
+      - ./logs:/app/logs
+      # Mount source for development (comment out for production)
+      - ./src:/app/src
+    env_file:
+      - .env  # Optional: load from .env file
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  # Optional: Database service (if using PostgreSQL instead of SQLite)
+  # postgres:
+  #   image: postgres:15-alpine
+  #   environment:
+  #     POSTGRES_DB: margadarsaka
+  #     POSTGRES_USER: margadarsaka
+  #     POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+
+# volumes:
+#   postgres_data:

@@ -1,0 +1,73 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+*.log
+*.sqlite
+*.db
+dist/
+build/
+*.egg-info/
+
+# UV
+.python-version
+
+# Doppler
+.doppler/
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# IDEs
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Environment & Secrets
+.env
+.env.*
+!.env.example
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Data files
+data/
+logs/
+*.csv
+*.json
+!**/schemas/*.json
+!**/config/*.json
+
+# PDF outputs
+*.pdf
+!docs/*.pdf
+
+# Images (generated)
+generated_images/
+temp_images/
+
+# Jupyter Notebooks checkpoints
+.ipynb_checkpoints/
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+
+# Testing
+.tox/
+.pytest_cache/
