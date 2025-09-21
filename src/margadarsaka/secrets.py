@@ -177,13 +177,13 @@ def get_debug_mode() -> bool:
 def get_api_base_url() -> str:
     """Get API base URL"""
     return (
-        get_secret("API_BASE_URL", "http://localhost:8000") or "http://localhost:8000"
+        get_secret("API_BASE_URL", "/api") or "/api"
     )
 
 
 def get_ui_base_url() -> str:
     """Get UI base URL"""
-    return get_secret("UI_BASE_URL", "http://localhost:8501") or "http://localhost:8501"
+    return get_secret("UI_BASE_URL", "/") or "/"
 
 
 def get_all_application_secrets() -> Dict[str, Any]:

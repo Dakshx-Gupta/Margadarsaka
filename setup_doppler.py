@@ -201,8 +201,8 @@ def add_sample_secrets():
     sample_secrets = {
         "ENVIRONMENT": "development",
         "DEBUG": "true",
-        "API_BASE_URL": "http://localhost:8000",
-        "UI_BASE_URL": "http://localhost:8501",
+        "API_BASE_URL": "/api",
+        "UI_BASE_URL": "/",
         "SECRET_KEY": "dev-secret-key-change-in-production",
         "DATABASE_URL": "sqlite:///margadarsaka.db",
         "GEMINI_API_KEY": "your_gemini_api_key_here",

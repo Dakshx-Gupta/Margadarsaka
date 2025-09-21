@@ -57,7 +57,7 @@ st.set_page_config(
 )
 
 # Constants
-API_BASE_URL = "http://localhost:8000"
+API_BASE_URL = "/api"
 
 
 def show_authentication_modal():

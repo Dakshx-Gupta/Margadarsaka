@@ -61,12 +61,20 @@ class AppwriteOAuth2Manager:
     def __init__(self, appwrite_service: Optional[AppwriteService] = None):
         self.state = get_state_manager()
         self.appwrite_service = appwrite_service
-        self.success_url = st.secrets.get("oauth", {}).get(
-            "success_url", "https://margadarsaka.com/auth/success"
-        )
-        self.failure_url = st.secrets.get("oauth", {}).get(
-            "failure_url", "https://margadarsaka.com/auth/failure"
-        )
+        
+        # Try to get OAuth URLs from secrets, with safe defaults
+        try:
+            oauth_config = st.secrets.get("oauth", {})
+            self.success_url = oauth_config.get(
+                "success_url", "/"
+            )
+            self.failure_url = oauth_config.get(
+                "failure_url", "/"
+            )
+        except Exception:
+            # If secrets are not available, use relative defaults
+            self.success_url = "/"
+            self.failure_url = "/"
 
     def is_user_logged_in(self) -> bool:
         """Check if user is currently logged in via OAuth 2"""
@@ -81,7 +89,7 @@ class AppwriteOAuth2Manager:
         """Get the current OAuth 2 session information"""
         try:
             if self.appwrite_service:
-                session = self.appwrite_service.get_session("current")
+                session = self.appwrite_service.get_session()  # Use default parameter
                 return session
             return None
         except Exception as e:
@@ -170,7 +178,7 @@ class AppwriteOAuth2Manager:
             if not self.appwrite_service:
                 return False
 
-            session = self.appwrite_service.update_session(session_id="current")
+            session = self.appwrite_service.update_session("current")
             if session:
                 logger.info("OAuth 2 session refreshed successfully")
                 return True
@@ -183,7 +191,7 @@ class AppwriteOAuth2Manager:
         """Logout the current OAuth 2 user"""
         try:
             if self.appwrite_service:
-                self.appwrite_service.delete_session(session_id="current")
+                self.appwrite_service.delete_session("current")
 
             # Clear local state
             self.state.set("oauth_user", None)

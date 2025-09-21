@@ -29,7 +29,7 @@ app = FastAPI(
 )
 
 # Configure CORS from secrets
-cors_origins = get_secret("CORS_ORIGINS", "http://localhost:3000,http://localhost:8501")
+cors_origins = get_secret("CORS_ORIGINS", "*")
 allowed_origins = cors_origins.split(",") if cors_origins else ["*"]
 
 # Add CORS middleware

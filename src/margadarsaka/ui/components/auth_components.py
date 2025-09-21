@@ -691,7 +691,7 @@ class AuthComponent:
             with col1:
                 if st.button(f"{providers[0]['icon']} {providers[0]['name']}", use_container_width=True, key="oauth_google"):
                     try:
-                        success = self.oauth_manager.create_oauth2_session(providers[0]['id'], providers[0]['scopes'])
+                        success = self.oauth_manager.create_oauth2_token(providers[0]['id'], providers[0]['scopes'])
                         if success:
                             st.success(f"Redirecting to {providers[0]['name']} for authentication...")
                             st.rerun()
@@ -701,7 +701,7 @@ class AuthComponent:
             with col2:
                 if st.button(f"{providers[1]['icon']} {providers[1]['name']}", use_container_width=True, key="oauth_github"):
                     try:
-                        success = self.oauth_manager.create_oauth2_session(providers[1]['id'], providers[1]['scopes'])
+                        success = self.oauth_manager.create_oauth2_token(providers[1]['id'], providers[1]['scopes'])
                         if success:
                             st.success(f"Redirecting to {providers[1]['name']} for authentication...")
                             st.rerun()
@@ -711,7 +711,7 @@ class AuthComponent:
             with col3:
                 if st.button(f"{providers[2]['icon']} {providers[2]['name']}", use_container_width=True, key="oauth_microsoft"):
                     try:
-                        success = self.oauth_manager.create_oauth2_session(providers[2]['id'], providers[2]['scopes'])
+                        success = self.oauth_manager.create_oauth2_token(providers[2]['id'], providers[2]['scopes'])
                         if success:
                             st.success(f"Redirecting to {providers[2]['name']} for authentication...")
                             st.rerun()
