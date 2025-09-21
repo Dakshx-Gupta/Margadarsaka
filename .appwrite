@@ -1,0 +1,19 @@
+# Appwrite CLI Configuration
+# This file is used by Appwrite CLI for deployment configuration
+
+# Project configuration
+APPWRITE_PROJECT_ID=margadarsaka
+APPWRITE_ENDPOINT=https://cloud.appwrite.io/v1
+
+# Deployment settings
+DEPLOY_TYPE=site
+BUILD_TIMEOUT=900
+INSTALL_TIMEOUT=600
+
+# Python runtime configuration
+PYTHON_VERSION=3.11
+PIP_CACHE_DIR=/tmp/pip-cache
+
+# Streamlit configuration
+STREAMLIT_PORT=8501
+STREAMLIT_HOST=0.0.0.0
