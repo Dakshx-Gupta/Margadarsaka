@@ -1,45 +1,122 @@
 """
-Chat Page - AI Career Counselor Interface
+Chat Page - AI Career Counselor Interface with Gemini Integration
 """
 
 import streamlit as st
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import logging
+import json
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
-# Import components with fallbacks
+# Import backend services
+try:
+    from margadarsaka.ai_integration import GeminiAI
+    from margadarsaka.models import UserProfile, ChatMessage
+    from margadarsaka.secrets import get_gemini_api_key
+    AI_AVAILABLE = True
+except ImportError as e:
+    logger.warning(f"AI integration not available: {e}")
+    AI_AVAILABLE = False
+
+# Import fallback components
 try:
     from margadarsaka.ui.utils.i18n import get_text
     from margadarsaka.ui.utils.state_manager import get_state_manager
-
     COMPONENTS_AVAILABLE = True
 except ImportError as e:
     logger.warning(f"Chat page components not available: {e}")
     COMPONENTS_AVAILABLE = False
-
     def get_text(key, default):
         return default
 
 
 class ChatInterface:
-    """AI Career Counselor Chat Interface"""
+    """AI Career Counselor Chat Interface with Gemini Integration"""
 
     def __init__(self):
         self.state = get_state_manager() if COMPONENTS_AVAILABLE else None
+        
+        # Initialize AI service
+        if AI_AVAILABLE:
+            try:
+                self.ai_service = GeminiAI()
+                self.ai_enabled = self.ai_service.model is not None
+            except Exception as e:
+                logger.warning(f"Failed to initialize AI service: {e}")
+                self.ai_service = None
+                self.ai_enabled = False
+        else:
+            self.ai_service = None
+            self.ai_enabled = False
 
         # Initialize chat history
         if "chat_messages" not in st.session_state:
+            welcome_msg = get_text(
+                "welcome_message",
+                "🙏 Namaste! I am Margadarsaka, your AI career counselor. I specialize in the Indian job market and can help you with career planning, skill development, and job search strategies. How can I assist you today?",
+            )
             st.session_state.chat_messages = [
                 {
                     "role": "assistant",
-                    "content": get_text(
-                        "welcome_message",
-                        "Namaste! I am your AI career counselor. How can I help you with your career journey today?",
-                    ),
-                    "timestamp": "00:00",
+                    "content": welcome_msg,
+                    "timestamp": datetime.now().strftime("%H:%M"),
                 }
             ]
+        
+        # Initialize user profile for context
+        if "user_profile" not in st.session_state:
+            st.session_state.user_profile = None
+
+    def get_user_profile(self) -> Optional[UserProfile]:
+        """Get or create user profile for AI context"""
+        if st.session_state.user_profile:
+            return st.session_state.user_profile
+            
+        # Try to create from session state if available
+        if st.session_state.get("user_authenticated", False):
+            # Create basic profile from available info
+            try:
+                profile = UserProfile(
+                    age=st.session_state.get("user_age", 25),
+                    location=st.session_state.get("user_location", "India"),
+                    education_level=st.session_state.get("user_education", "bachelor"),
+                    field_of_study=st.session_state.get("user_field", "general"),
+                    interests=st.session_state.get("user_interests", []),
+                    skills=st.session_state.get("user_skills", []),
+                    goals=st.session_state.get("user_goals", [])
+                )
+                st.session_state.user_profile = profile
+                return profile
+            except Exception as e:
+                logger.warning(f"Could not create user profile: {e}")
+        
+        return None
+
+    def create_default_profile(self) -> Optional[UserProfile]:
+        """Create a default user profile for AI context"""
+        try:
+            if AI_AVAILABLE:
+                return UserProfile(
+                    name="User",
+                    age=25,
+                    location="India",
+                    education_level="bachelor",
+                    field_of_study="general",
+                    interests=["career_growth"],
+                    skills=["communication"],
+                    goals=["job_search"],
+                    academic_performance="average",
+                    experience_years=1,
+                    learning_style="visual",
+                    stress_tolerance=5,  # Scale of 1-10
+                    geographical_mobility=True,
+                    salary_expectations="competitive"
+                )
+        except Exception as e:
+            logger.warning(f"Could not create default profile: {e}")
+        return None
 
     def render_header(self):
         """Render chat page header"""
@@ -168,10 +245,54 @@ class ChatInterface:
         )
 
     def generate_ai_response(self, user_message: str):
-        """Generate AI response (placeholder implementation)"""
-        # This is a simple pattern-based response system
-        # In a real implementation, this would call an AI service
+        """Generate AI response using Gemini integration with fallback"""
+        
+        # Try AI integration first
+        if self.ai_enabled and self.ai_service:
+            try:
+                # Get user profile for better context
+                profile = self.get_user_profile()
+                
+                # Convert chat history to proper format (simplified for now)
+                chat_history = []
+                for msg in st.session_state.chat_messages[:-1]:  # Exclude current message
+                    if msg["role"] in ["user", "assistant"]:
+                        # For now, just pass the message content - AI service can handle raw format
+                        chat_history.append({
+                            "role": msg["role"],
+                            "content": msg["content"]
+                        })
+                
+                # Generate AI response
+                if profile:
+                    response = self.ai_service.chat_with_user(
+                        message=user_message,
+                        profile=profile,
+                        chat_history=chat_history
+                    )
+                else:
+                    # Use default profile
+                    default_profile = self.create_default_profile()
+                    if default_profile:
+                        response = self.ai_service.chat_with_user(
+                            message=user_message,
+                            profile=default_profile, 
+                            chat_history=chat_history
+                        )
+                    else:
+                        raise Exception("Could not create user profile")
+                
+                return response
+                
+            except Exception as e:
+                logger.error(f"AI service error: {e}")
+                # Fall through to pattern-based responses
+        
+        # Fallback to pattern-based responses
+        return self.generate_pattern_response(user_message)
 
+    def generate_pattern_response(self, user_message: str):
+        """Generate pattern-based responses for common queries"""
         user_lower = user_message.lower()
 
         if any(

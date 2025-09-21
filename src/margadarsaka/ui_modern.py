@@ -825,38 +825,217 @@ def show_chat_page():
 
 
 def show_assessment_page():
-    """Psychological assessment page"""
+    """Psychological assessment page with backend integration"""
     try:
-        from margadarsaka.ui.pages.assessment import (
-            show_assessment_page as assessment_show,
-        )
-
+        from margadarsaka.ui.pages.assessment import show_assessment_page as assessment_show
         assessment_show()
-    except ImportError:
-        st.markdown(
-            f"# 🧠 {get_text('psychological_assessment', 'Psychological Assessment')}"
-        )
-        st.info(
-            get_text(
-                "assessment_coming_soon",
-                "Advanced psychological assessment coming soon!",
+    except ImportError as e:
+        logger.warning(f"Advanced assessment page not available: {e}")
+        # Fallback to integrated assessment using psychology module
+        try:
+            from margadarsaka.psychology import TestingFramework
+            from margadarsaka.models import TestResponse
+            
+            st.markdown(f"# 🧠 {get_text('psychological_assessment', 'Psychological Assessment')}")
+            
+            # Initialize testing framework
+            testing_framework = TestingFramework()
+            
+            # Assessment options
+            assessment_type = st.selectbox(
+                "Choose an assessment:",
+                [
+                    "RIASEC Career Interest Assessment",
+                    "Mental Skills Evaluation", 
+                    "Big Five Personality Test",
+                    "Complete Psychological Profile"
+                ]
             )
-        )
+            
+            if assessment_type == "RIASEC Career Interest Assessment":
+                st.markdown("### 🎯 RIASEC Career Interest Assessment")
+                st.info("Discover your career interests based on Holland's RIASEC model")
+                
+                test = testing_framework.get_test_by_type("riasec")
+                render_psychological_test(test, "riasec")
+                
+            elif assessment_type == "Mental Skills Evaluation":
+                st.markdown("### 🧠 Mental Skills Assessment")
+                st.info("Evaluate your analytical, deductive, and psychological abilities")
+                
+                test = testing_framework.get_test_by_type("mental_skills")
+                render_psychological_test(test, "mental_skills")
+                
+            elif assessment_type == "Big Five Personality Test":
+                st.markdown("### 👤 Big Five Personality Assessment")
+                st.info("Assess your personality traits using the Big Five model")
+                
+                test = testing_framework.get_test_by_type("personality")
+                render_psychological_test(test, "personality")
+                
+            elif assessment_type == "Complete Psychological Profile":
+                st.markdown("### 🔬 Complete Psychological Profile")
+                st.info("Take all assessments for a comprehensive career analysis")
+                
+                if st.button("🚀 Start Complete Assessment", type="primary"):
+                    st.session_state.complete_assessment_started = True
+                    st.rerun()
+                
+                if st.session_state.get("complete_assessment_started", False):
+                    render_complete_assessment(testing_framework)
+            
+        except ImportError:
+            # Final fallback to simple interface
+            st.markdown(f"# 🧠 {get_text('psychological_assessment', 'Psychological Assessment')}")
+            st.info(get_text("assessment_coming_soon", "Advanced psychological assessment coming soon!"))
 
-        # Placeholder content
-        st.markdown(f"""
-        ### {get_text("what_to_expect", "What to Expect")}
+            # Placeholder content with call to action
+            st.markdown(f"""
+            ### {get_text("what_to_expect", "What to Expect")}
+            
+            Our comprehensive psychological assessment includes:
+            
+            - **Personality Analysis**: Big Five personality traits
+            - **Interest Inventory**: Holland's career interest themes  
+            - **Skills Assessment**: Cognitive and technical abilities
+            - **Values Clarification**: Work and life priorities
+            - **Career Readiness**: Preparation for career decisions
+            
+            {get_text("assessment_time", "Estimated completion time: 45-60 minutes")}
+            """)
+            
+            # Simple demo assessment
+            with st.expander("🎯 Try a Quick Assessment Demo"):
+                demo_question = st.radio(
+                    "I prefer working with:",
+                    ["Ideas and concepts", "People and relationships", "Data and facts", "Objects and tools"]
+                )
+                
+                if st.button("Get Quick Insight"):
+                    insights = {
+                        "Ideas and concepts": "You might enjoy careers in research, writing, or creative fields!",
+                        "People and relationships": "Consider careers in counseling, teaching, or social work!",
+                        "Data and facts": "You could excel in analysis, finance, or scientific research!",
+                        "Objects and tools": "Engineering, craftsmanship, or technical roles might suit you!"
+                    }
+                    st.success(f"💡 Quick Insight: {insights[demo_question]}")
+                    st.info("For detailed analysis, complete our full assessment when available!")
+
+
+def render_psychological_test(test, test_type: str):
+    """Render a psychological test interface"""
+    if not test:
+        st.error("Test not available")
+        return
+    
+    st.markdown(f"**Duration:** {test.duration_minutes} minutes")
+    st.markdown(f"**Questions:** {len(test.questions)}")
+    st.markdown(f"**Description:** {test.description}")
+    
+    # Initialize responses in session state
+    response_key = f"test_responses_{test_type}"
+    if response_key not in st.session_state:
+        st.session_state[response_key] = {}
+    
+    # Render questions
+    with st.form(f"test_form_{test_type}"):
+        st.markdown("---")
         
-        Our comprehensive psychological assessment includes:
+        for i, question in enumerate(test.questions[:5]):  # Show first 5 questions as demo
+            st.markdown(f"**Question {i+1}:** {question['question']}")
+            
+            # Create response widget based on question type
+            if question.get('type') == 'scale':
+                response = st.slider(
+                    f"Response to Q{i+1}",
+                    1, 5, 3,
+                    key=f"{test_type}_q{i+1}",
+                    help="1 = Strongly Disagree, 5 = Strongly Agree"
+                )
+            else:
+                # Default to scale for demo
+                response = st.slider(
+                    f"Response to Q{i+1}",
+                    1, 5, 3,
+                    key=f"{test_type}_q{i+1}",
+                    help="1 = Strongly Disagree, 5 = Strongly Agree"
+                )
+            
+            st.session_state[response_key][f"q{i+1}"] = response
         
-        - **Personality Analysis**: Big Five personality traits
-        - **Interest Inventory**: Holland's career interest themes  
-        - **Skills Assessment**: Cognitive and technical abilities
-        - **Values Clarification**: Work and life priorities
-        - **Career Readiness**: Preparation for career decisions
+        st.markdown("---")
+        st.info("📝 This is a demo showing the first 5 questions. Complete assessment available with full setup.")
         
-        {get_text("assessment_time", "Estimated completion time: 45-60 minutes")}
-        """)
+        submitted = st.form_submit_button("Complete Assessment (Demo)")
+        
+        if submitted:
+            # Show demo results
+            st.success("✅ Assessment completed!")
+            
+            # Calculate simple score
+            responses = list(st.session_state[response_key].values())
+            avg_score = sum(responses) / len(responses) if responses else 0
+            
+            st.markdown("### 📊 Your Results")
+            st.metric("Average Score", f"{avg_score:.1f}/5.0")
+            
+            # Provide basic insights
+            if avg_score >= 4:
+                st.success("🌟 You show strong positive responses in this area!")
+            elif avg_score >= 3:
+                st.info("✅ You have balanced responses in this area.")
+            else:
+                st.warning("💡 This might be an area for development.")
+            
+            st.info("For detailed analysis and personalized recommendations, complete the full assessment!")
+
+
+def render_complete_assessment(testing_framework):
+    """Render complete assessment flow"""
+    st.markdown("### 🎯 Complete Assessment Progress")
+    
+    # Progress tracking
+    tests = ["riasec", "mental_skills", "personality"]
+    completed_tests = st.session_state.get("completed_tests", [])
+    
+    progress = len(completed_tests) / len(tests)
+    st.progress(progress)
+    st.caption(f"Progress: {len(completed_tests)}/{len(tests)} tests completed")
+    
+    # Show next test
+    if len(completed_tests) < len(tests):
+        next_test = [t for t in tests if t not in completed_tests][0]
+        st.markdown(f"### 📝 Next: {next_test.replace('_', ' ').title()}")
+        
+        test = testing_framework.get_test_by_type(next_test)
+        render_psychological_test(test, next_test)
+        
+        if st.button("Mark Test as Completed", key=f"complete_{next_test}"):
+            if "completed_tests" not in st.session_state:
+                st.session_state.completed_tests = []
+            st.session_state.completed_tests.append(next_test)
+            st.rerun()
+    else:
+        # All tests completed
+        st.success("🎉 All assessments completed!")
+        st.markdown("### 📊 Your Complete Profile")
+        
+        # Show comprehensive results
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.metric("RIASEC Top Interest", "Investigative")
+        with col2:
+            st.metric("Mental Skills Score", "8.2/10")
+        with col3:
+            st.metric("Personality Type", "INTJ-like")
+        
+        st.info("💡 Detailed analysis and career recommendations would be generated here in the full version!")
+        
+        if st.button("🔄 Restart Assessment"):
+            st.session_state.completed_tests = []
+            st.session_state.complete_assessment_started = False
+            st.rerun()
 
 
 def show_resume_page():
@@ -945,13 +1124,25 @@ def show_resume_page():
 
 
 def show_chat_page():
-    """AI career chat page"""
+    """AI career chat page with full Gemini integration"""
     try:
         from margadarsaka.ui.pages.chat import show_chat_page as chat_show
-
         chat_show()
-    except ImportError:
+    except ImportError as e:
+        logger.warning(f"Advanced chat page not available: {e}")
+        # Fallback to simple chat interface
         st.markdown(f"# 🤖 {get_text('ai_career_chat', 'AI Career Chat')}")
+
+        # AI Status
+        try:
+            from margadarsaka.secrets import get_gemini_api_key
+            api_key = get_gemini_api_key()
+            if api_key:
+                st.success("🤖 AI Assistant is ready to help!")
+            else:
+                st.warning("⚠️ AI features require Gemini API key configuration")
+        except:
+            st.info("💡 Enhanced AI features available with full setup")
 
         # Simple chat interface placeholder
         if "chat_messages" not in st.session_state:
@@ -960,7 +1151,7 @@ def show_chat_page():
                     "role": "assistant",
                     "content": get_text(
                         "chat_welcome",
-                        "Hello! I'm your AI career advisor. How can I help you today?",
+                        "🙏 Namaste! I'm Margadarsaka, your AI career advisor specializing in the Indian job market. How can I help you today?",
                     ),
                 }
             ]
@@ -972,18 +1163,28 @@ def show_chat_page():
 
         # Chat input
         if prompt := st.chat_input(
-            get_text("type_message", "Type your message here...")
+            get_text("type_message", "Ask me about career guidance, skills, or job search...")
         ):
             st.session_state.chat_messages.append({"role": "user", "content": prompt})
 
-            # Add AI response (placeholder)
+            # Simple pattern-based responses
             response = get_text(
-                "ai_response_placeholder",
-                "Thank you for your question. Advanced AI responses coming soon!",
+                "fallback_response", 
+                "Thank you for your question! For detailed AI-powered career guidance, please ensure the full Margadarsaka setup is complete. In the meantime, check out our Assessment and Resources sections!"
             )
-            st.session_state.chat_messages.append(
-                {"role": "assistant", "content": response}
-            )
+            
+            # Add some basic pattern matching
+            if "career" in prompt.lower():
+                response = "Career planning is essential! I recommend starting with our psychological assessment to understand your interests and strengths, then exploring our curated learning resources."
+            elif "skill" in prompt.lower():
+                response = "Skill development is key to career success! Visit our Resources section for learning paths, or take our assessment to identify which skills align with your career goals."
+            elif "job" in prompt.lower():
+                response = "Job searching can be challenging! Our Resources section has job boards and tips. Also consider taking our assessment to better understand what roles might suit you."
+
+            st.session_state.chat_messages.append({
+                "role": "assistant", 
+                "content": response
+            })
             st.rerun()
 
 
@@ -1007,17 +1208,38 @@ def show_recommendations_page():
 
 
 def show_resources_page():
-    """Learning resources page"""
+    """Learning resources page with full backend integration"""
     try:
-        from margadarsaka.ui.pages.resources import ResourcesPage
-
-        resources_page = ResourcesPage()
-        resources_page.render()
-    except ImportError:
+        from margadarsaka.ui.pages.resources import show_resources_page as resources_show
+        resources_show()
+    except ImportError as e:
+        logger.warning(f"Advanced resources page not available: {e}")
+        # Fallback to simple resources display
         st.markdown(f"# 📚 {get_text('learning_resources', 'Learning Resources')}")
-        st.info(
-            get_text("resources_coming_soon", "Curated learning resources coming soon!")
+        
+        # Simple resource browser
+        resource_type = st.selectbox(
+            "Filter by type:",
+            ["All Resources", "Learning Courses", "Job Search", "Mentorship", "Career Roadmaps"]
         )
+        
+        if resource_type == "Career Roadmaps":
+            st.markdown("### 🗺️ Popular Career Roadmaps")
+            roadmaps = [
+                {"title": "Frontend Developer", "url": "https://roadmap.sh/frontend"},
+                {"title": "Backend Developer", "url": "https://roadmap.sh/backend"},
+                {"title": "DevOps Engineer", "url": "https://roadmap.sh/devops"},
+                {"title": "Data Scientist", "url": "https://roadmap.sh/data-science"}
+            ]
+            
+            for roadmap in roadmaps:
+                st.markdown(f"🔗 [{roadmap['title']}]({roadmap['url']})")
+        else:
+            st.info("Advanced resource filtering and recommendations available with full setup!")
+            
+        # Add disclaimer
+        st.markdown("---")
+        st.info("📣 **Legal Disclaimer**: External resources are provided for educational purposes only.")
 
 
 def show_profile_page():
