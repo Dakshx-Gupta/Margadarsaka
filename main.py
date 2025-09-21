@@ -79,7 +79,7 @@ def main_page():
 
     if active_tab == "📊 Career Test":
         display_career_test()
-
+        
     elif active_tab == "🔍 Resume Analyzer":
         user_file = sl.file_uploader("Upload your resume", type = ["pdf", "docx"])
         if user_file is not None:
