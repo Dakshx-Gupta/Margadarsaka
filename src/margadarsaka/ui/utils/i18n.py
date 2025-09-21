@@ -336,6 +336,176 @@ TRANSLATIONS = {
         Language.HINDI: "लॉग इन",
         Language.HINGLISH: "Login",
     },
+    "sso_login": {
+        Language.ENGLISH: "SSO Login",
+        Language.HINDI: "एसएसओ लॉग इन",
+        Language.HINGLISH: "SSO Login",
+    },
+    "more_options": {
+        Language.ENGLISH: "More Options",
+        Language.HINDI: "और विकल्प",
+        Language.HINGLISH: "More Options",
+    },
+    "welcome_back": {
+        Language.ENGLISH: "Welcome Back!",
+        Language.HINDI: "वापसी पर स्वागत है!",
+        Language.HINGLISH: "Welcome Back!",
+    },
+    "login_subtitle": {
+        Language.ENGLISH: "Login to continue your journey with Margadarsaka.",
+        Language.HINDI: "मार्गदर्शक के साथ अपनी यात्रा जारी रखने के लिए लॉग इन करें।",
+        Language.HINGLISH: "Login to continue your journey with Margadarsaka.",
+    },
+    "email_help": {
+        Language.ENGLISH: "Enter your registered email address.",
+        Language.HINDI: "अपना पंजीकृत ईमेल पता दर्ज करें।",
+        Language.HINGLISH: "Enter your registered email address.",
+    },
+    "password_help": {
+        Language.ENGLISH: "Enter your password.",
+        Language.HINDI: "अपना पासवर्ड दर्ज करें।",
+        Language.HINGLISH: "Enter your password.",
+    },
+    "remember_me": {
+        Language.ENGLISH: "Remember me",
+        Language.HINDI: "मुझे याद रखें",
+        Language.HINGLISH: "Remember me",
+    },
+    "remember_help": {
+        Language.ENGLISH: "Keep me logged in on this device.",
+        Language.HINDI: "इस डिवाइस पर मुझे लॉग इन रखें।",
+        Language.HINGLISH: "Keep me logged in on this device.",
+    },
+    "forgot_password": {
+        Language.ENGLISH: "Forgot Password?",
+        Language.HINDI: "पासवर्ड भूल गए?",
+        Language.HINGLISH: "Forgot Password?",
+    },
+    "need_account": {
+        Language.ENGLISH: "Need an account?",
+        Language.HINDI: "खाता चाहिए?",
+        Language.HINGLISH: "Need an account?",
+    },
+    "join_margadarsaka": {
+        Language.ENGLISH: "Join Margadarsaka",
+        Language.HINDI: "मार्गदर्शक से जुड़ें",
+        Language.HINGLISH: "Join Margadarsaka",
+    },
+    "register_subtitle": {
+        Language.ENGLISH: "Create an account to get started.",
+        Language.HINDI: "शुरू करने के लिए एक खाता बनाएँ।",
+        Language.HINGLISH: "Create an account to get started.",
+    },
+    "create_account": {
+        Language.ENGLISH: "Create Account",
+        Language.HINDI: "खाता बनाएं",
+        Language.HINGLISH: "Create Account",
+    },
+    "name_help": {
+        Language.ENGLISH: "Enter your full name.",
+        Language.HINDI: "अपना पूरा नाम दर्ज करें।",
+        Language.HINGLISH: "Enter your full name.",
+    },
+    "email_register_help": {
+        Language.ENGLISH: "This will be your username.",
+        Language.HINDI: "यह आपका उपयोगकर्ता नाम होगा।",
+        Language.HINGLISH: "This will be your username.",
+    },
+    "password_strength_help": {
+        Language.ENGLISH: "Use a strong password with a mix of letters, numbers, and symbols.",
+        Language.HINDI: "अक्षर, संख्या और प्रतीकों के मिश्रण के साथ एक मजबूत पासवर्ड का उपयोग करें।",
+        Language.HINGLISH: "Use a strong password with a mix of letters, numbers, and symbols.",
+    },
+    "confirm_password_help": {
+        Language.ENGLISH: "Re-enter your password to confirm.",
+        Language.HINDI: "पुष्टि करने के लिए अपना पासवर्ड फिर से दर्ज करें।",
+        Language.HINGLISH: "Re-enter your password to confirm.",
+    },
+    "accept_terms": {
+        Language.ENGLISH: "I accept the terms and conditions",
+        Language.HINDI: "मैं नियम और शर्तों को स्वीकार करता हूं",
+        Language.HINGLISH: "I accept the terms and conditions",
+    },
+    "terms_help": {
+        Language.ENGLISH: "You must agree to the terms to create an account.",
+        Language.HINDI: "खाता बनाने के लिए आपको शर्तों से सहमत होना होगा।",
+        Language.HINGLISH: "You must agree to the terms to create an account.",
+    },
+    "age_verification": {
+        Language.ENGLISH: "I am over 13 years old",
+        Language.HINDI: "मैं 13 साल से ऊपर का हूं",
+        Language.HINGLISH: "I am over 13 years old",
+    },
+    "age_help": {
+        Language.ENGLISH: "You must be over 13 to use this service.",
+        Language.HINDI: "इस सेवा का उपयोग करने के लिए आपकी आयु 13 वर्ष से अधिक होनी चाहिए।",
+        Language.HINGLISH: "You must be over 13 to use this service.",
+    },
+    "have_account": {
+        Language.ENGLISH: "Already have an account?",
+        Language.HINDI: "पहले से ही एक खाता है?",
+        Language.HINGLISH: "Already have an account?",
+    },
+    "or_continue_with": {
+        Language.ENGLISH: "Or continue with",
+        Language.HINDI: "या इसके साथ जारी रखें",
+        Language.HINGLISH: "Or continue with",
+    },
+    "terms_of_service": {
+        Language.ENGLISH: "Terms of Service",
+        Language.HINDI: "सेवा की शर्तें",
+        Language.HINGLISH: "Terms of Service",
+    },
+    "privacy_policy": {
+        Language.ENGLISH: "Privacy Policy",
+        Language.HINDI: "गोपनीयता नीति",
+        Language.HINGLISH: "Privacy Policy",
+    },
+    "auth_footer": {
+        Language.ENGLISH: "By continuing, you agree to our",
+        Language.HINDI: "जारी रखकर, आप हमारी",
+        Language.HINGLISH: "By continuing, you agree to our",
+    },
+    "close": {
+        Language.ENGLISH: "Close",
+        Language.HINDI: "बंद करें",
+        Language.HINGLISH: "Close",
+    },
+    "name_required": {
+        Language.ENGLISH: "Name is required.",
+        Language.HINDI: "नाम आवश्यक है।",
+        Language.HINGLISH: "Name is required.",
+    },
+    "email_required": {
+        Language.ENGLISH: "Email is required.",
+        Language.HINDI: "ईमेल आवश्यक है।",
+        Language.HINGLISH: "Email is required.",
+    },
+    "password_required": {
+        Language.ENGLISH: "Password is required.",
+        Language.HINDI: "पासवर्ड आवश्यक है।",
+        Language.HINGLISH: "Password is required.",
+    },
+    "recommend_full_name": {
+        Language.ENGLISH: "We recommend using your full name.",
+        Language.HINDI: "हम आपका पूरा नाम उपयोग करने की सलाह देते हैं।",
+        Language.HINGLISH: "We recommend using your full name.",
+    },
+    "password_need_number": {
+        Language.ENGLISH: "Password must contain at least one number.",
+        Language.HINDI: "पासवर्ड में कम से कम एक संख्या होनी चाहिए।",
+        Language.HINGLISH: "Password must contain at least one number.",
+    },
+    "password_recommend_special": {
+        Language.ENGLISH: "We recommend using at least one special character.",
+        Language.HINDI: "हम कम से कम एक विशेष वर्ण का उपयोग करने की सलाह देते हैं।",
+        Language.HINGLISH: "We recommend using at least one special character.",
+    },
+    "passwords_dont_match": {
+        Language.ENGLISH: "Passwords do not match.",
+        Language.HINDI: "पासवर्ड मेल नहीं खाते।",
+        Language.HINGLISH: "Passwords do not match.",
+    },
     "register": {
         Language.ENGLISH: "Register",
         Language.HINDI: "पंजीकरण",
@@ -615,6 +785,264 @@ TRANSLATIONS = {
         Language.ENGLISH: "CAT (Common Admission Test)",
         Language.HINDI: "कैट (सामान्य प्रवेश परीक्षा)",
         Language.HINGLISH: "CAT (Common Admission Test)",
+    },
+    # Header Component Translations
+    "app_name": {
+        Language.ENGLISH: "Margadarsaka",
+        Language.HINDI: "मार्गदर्शक",
+        Language.HINGLISH: "Margadarsaka",
+    },
+    "tagline": {
+        Language.ENGLISH: "AI Career Advisor",
+        Language.HINDI: "एआई करियर सलाहकार",
+        Language.HINGLISH: "AI Career Advisor",
+    },
+    "nav_home": {
+        Language.ENGLISH: "Home",
+        Language.HINDI: "होम",
+        Language.HINGLISH: "Home",
+    },
+    "nav_assessment": {
+        Language.ENGLISH: "Assessment",
+        Language.HINDI: "मूल्यांकन",
+        Language.HINGLISH: "Assessment",
+    },
+    "nav_chat": {
+        Language.ENGLISH: "AI Chat",
+        Language.HINDI: "एआई चैट",
+        Language.HINGLISH: "AI Chat",
+    },
+    "nav_resume": {
+        Language.ENGLISH: "Resume",
+        Language.HINDI: "रिज्यूमे",
+        Language.HINGLISH: "Resume",
+    },
+    "nav_resources": {
+        Language.ENGLISH: "Resources",
+        Language.HINDI: "संसाधन",
+        Language.HINGLISH: "Resources",
+    },
+    "search_placeholder": {
+        Language.ENGLISH: "Search careers, skills...",
+        Language.HINDI: "करियर, कौशल खोजें...",
+        Language.HINGLISH: "Search careers, skills...",
+    },
+    "change_language": {
+        Language.ENGLISH: "Change Language",
+        Language.HINDI: "भाषा बदलें",
+        Language.HINGLISH: "Change Language",
+    },
+    "sign_in": {
+        Language.ENGLISH: "Sign In",
+        Language.HINDI: "साइन इन",
+        Language.HINGLISH: "Sign In",
+    },
+    "get_started": {
+        Language.ENGLISH: "Get Started",
+        Language.HINDI: "शुरू करें",
+        Language.HINGLISH: "Get Started",
+    },
+    # Hero Section Translations
+    "welcome_message": {
+        Language.ENGLISH: "Discover your ideal career path with personalized AI guidance, comprehensive skill assessments, and data-driven insights tailored for the Indian job market.",
+        Language.HINDI: "व्यक्तिगत एआई मार्गदर्शन, व्यापक कौशल मूल्यांकन, और भारतीय नौकरी बाजार के लिए तैयार किए गए डेटा-संचालित अंतर्दृष्टि के साथ अपना आदर्श करियर पथ खोजें।",
+        Language.HINGLISH: "Discover your ideal career path with personalized AI guidance, comprehensive skill assessments, and data-driven insights tailored for the Indian job market.",
+    },
+    "feature_assessment": {
+        Language.ENGLISH: "Psychological Assessment",
+        Language.HINDI: "मनोवैज्ञानिक मूल्यांकन",
+        Language.HINGLISH: "Psychological Assessment",
+    },
+    "feature_ai_chat": {
+        Language.ENGLISH: "AI Career Advisor",
+        Language.HINDI: "एआई करियर सलाहकार",
+        Language.HINGLISH: "AI Career Advisor",
+    },
+    "feature_resume": {
+        Language.ENGLISH: "Resume Analysis",
+        Language.HINDI: "रिज्यूमे विश्लेषण",
+        Language.HINGLISH: "Resume Analysis",
+    },
+    "feature_insights": {
+        Language.ENGLISH: "Career Insights",
+        Language.HINDI: "करियर अंतर्दृष्टि",
+        Language.HINGLISH: "Career Insights",
+    },
+    "start_journey": {
+        Language.ENGLISH: "Start Your Career Journey",
+        Language.HINDI: "अपनी करियर यात्रा शुरू करें",
+        Language.HINGLISH: "Start Your Career Journey",
+    },
+    "learn_more": {
+        Language.ENGLISH: "Learn More",
+        Language.HINDI: "और जानें",
+        Language.HINGLISH: "Learn More",
+    },
+    "start_assessment": {
+        Language.ENGLISH: "Start Assessment",
+        Language.HINDI: "मूल्यांकन शुरू करें",
+        Language.HINGLISH: "Start Assessment",
+    },
+    # Footer Component Translations
+    "footer_description": {
+        Language.ENGLISH: "Empowering careers through AI-driven insights, personalized guidance, and comprehensive skill development.",
+        Language.HINDI: "एआई-संचालित अंतर्दृष्टि, व्यक्तिगत मार्गदर्शन, और व्यापक कौशल विकास के माध्यम से करियर को सशक्त बनाना।",
+        Language.HINGLISH: "Empowering careers through AI-driven insights, personalized guidance, and comprehensive skill development.",
+    },
+    "newsletter_title": {
+        Language.ENGLISH: "Stay Updated",
+        Language.HINDI: "अपडेट रहें",
+        Language.HINGLISH: "Stay Updated",
+    },
+    "newsletter_description": {
+        Language.ENGLISH: "Get career insights and tips delivered to your inbox.",
+        Language.HINDI: "करियर की जानकारी और सुझाव अपने इनबॉक्स में प्राप्त करें।",
+        Language.HINGLISH: "Get career insights and tips delivered to your inbox.",
+    },
+    "email_placeholder": {
+        Language.ENGLISH: "Enter your email",
+        Language.HINDI: "अपना ईमेल दर्ज करें",
+        Language.HINGLISH: "Enter your email",
+    },
+    "subscribe": {
+        Language.ENGLISH: "Subscribe",
+        Language.HINDI: "सब्सक्राइब करें",
+        Language.HINGLISH: "Subscribe",
+    },
+    "footer_section_product": {
+        Language.ENGLISH: "Product",
+        Language.HINDI: "उत्पाद",
+        Language.HINGLISH: "Product",
+    },
+    "footer_section_resources": {
+        Language.ENGLISH: "Resources",
+        Language.HINDI: "संसाधन",
+        Language.HINGLISH: "Resources",
+    },
+    "footer_section_company": {
+        Language.ENGLISH: "Company",
+        Language.HINDI: "कंपनी",
+        Language.HINGLISH: "Company",
+    },
+    "footer_section_support": {
+        Language.ENGLISH: "Support",
+        Language.HINDI: "सहायता",
+        Language.HINGLISH: "Support",
+    },
+    "footer_link_features": {
+        Language.ENGLISH: "Features",
+        Language.HINDI: "विशेषताएं",
+        Language.HINGLISH: "Features",
+    },
+    "footer_link_assessments": {
+        Language.ENGLISH: "Assessments",
+        Language.HINDI: "मूल्यांकन",
+        Language.HINGLISH: "Assessments",
+    },
+    "footer_link_ai_chat": {
+        Language.ENGLISH: "AI Chat",
+        Language.HINDI: "एआई चैट",
+        Language.HINGLISH: "AI Chat",
+    },
+    "footer_link_resume_builder": {
+        Language.ENGLISH: "Resume Builder",
+        Language.HINDI: "रिज्यूमे बिल्डर",
+        Language.HINGLISH: "Resume Builder",
+    },
+    "footer_link_pricing": {
+        Language.ENGLISH: "Pricing",
+        Language.HINDI: "मूल्य निर्धारण",
+        Language.HINGLISH: "Pricing",
+    },
+    "footer_link_career_guide": {
+        Language.ENGLISH: "Career Guide",
+        Language.HINDI: "करियर गाइड",
+        Language.HINGLISH: "Career Guide",
+    },
+    "footer_link_skill_library": {
+        Language.ENGLISH: "Skill Library",
+        Language.HINDI: "कौशल पुस्तकालय",
+        Language.HINGLISH: "Skill Library",
+    },
+    "footer_link_industry_insights": {
+        Language.ENGLISH: "Industry Insights",
+        Language.HINDI: "उद्योग की जानकारी",
+        Language.HINGLISH: "Industry Insights",
+    },
+    "footer_link_blog": {
+        Language.ENGLISH: "Blog",
+        Language.HINDI: "ब्लॉग",
+        Language.HINGLISH: "Blog",
+    },
+    "footer_link_success_stories": {
+        Language.ENGLISH: "Success Stories",
+        Language.HINDI: "सफलता की कहानियां",
+        Language.HINGLISH: "Success Stories",
+    },
+    "footer_link_about_us": {
+        Language.ENGLISH: "About Us",
+        Language.HINDI: "हमारे बारे में",
+        Language.HINGLISH: "About Us",
+    },
+    "footer_link_careers": {
+        Language.ENGLISH: "Careers",
+        Language.HINDI: "करियर",
+        Language.HINGLISH: "Careers",
+    },
+    "footer_link_contact": {
+        Language.ENGLISH: "Contact",
+        Language.HINDI: "संपर्क",
+        Language.HINGLISH: "Contact",
+    },
+    "footer_link_privacy_policy": {
+        Language.ENGLISH: "Privacy Policy",
+        Language.HINDI: "गोपनीयता नीति",
+        Language.HINGLISH: "Privacy Policy",
+    },
+    "footer_link_terms_of_service": {
+        Language.ENGLISH: "Terms of Service",
+        Language.HINDI: "सेवा की शर्तें",
+        Language.HINGLISH: "Terms of Service",
+    },
+    "footer_link_help_center": {
+        Language.ENGLISH: "Help Center",
+        Language.HINDI: "सहायता केंद्र",
+        Language.HINGLISH: "Help Center",
+    },
+    "footer_link_documentation": {
+        Language.ENGLISH: "Documentation",
+        Language.HINDI: "दस्तावेज़ीकरण",
+        Language.HINGLISH: "Documentation",
+    },
+    "footer_link_api_reference": {
+        Language.ENGLISH: "API Reference",
+        Language.HINDI: "एपीआई संदर्भ",
+        Language.HINGLISH: "API Reference",
+    },
+    "footer_link_community": {
+        Language.ENGLISH: "Community",
+        Language.HINDI: "समुदाय",
+        Language.HINGLISH: "Community",
+    },
+    "footer_link_status": {
+        Language.ENGLISH: "Status",
+        Language.HINDI: "स्थिति",
+        Language.HINGLISH: "Status",
+    },
+    "rights_reserved": {
+        Language.ENGLISH: "All rights reserved.",
+        Language.HINDI: "सभी अधिकार सुरक्षित।",
+        Language.HINGLISH: "All rights reserved.",
+    },
+    "dark_mode": {
+        Language.ENGLISH: "Dark Mode",
+        Language.HINDI: "डार्क मोड",
+        Language.HINGLISH: "Dark Mode",
+    },
+    "language_code": {
+        Language.ENGLISH: "EN",
+        Language.HINDI: "हि",
+        Language.HINGLISH: "EN",
     },
 }
 

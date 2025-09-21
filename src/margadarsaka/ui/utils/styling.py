@@ -6,26 +6,198 @@ Provides consistent theming, responsive design, and beautiful components
 import streamlit as st
 from typing import Dict, Any
 
-# Enhanced color palette with better contrast and accessibility
+# Modern Design System - Enhanced color palette and design tokens
+DESIGN_TOKENS = {
+    # Primary Color System - Professional blue to purple gradient
+    "primary": {
+        "50": "#E3F2FD",   # Lightest blue
+        "100": "#BBDEFB",  # Light blue
+        "200": "#90CAF9",  # Medium-light blue
+        "300": "#64B5F6",  # Medium blue
+        "400": "#42A5F5",  # Medium-dark blue
+        "500": "#1E88E5",  # Primary blue
+        "600": "#1976D2",  # Dark blue
+        "700": "#1565C0",  # Darker blue
+        "800": "#0D47A1",  # Very dark blue
+        "900": "#0A3A85",  # Darkest blue
+    },
+    
+    # Secondary Color System - Rich purple gradients
+    "secondary": {
+        "50": "#F3E5F5",   # Lightest purple
+        "100": "#E1BEE7",  # Light purple
+        "200": "#CE93D8",  # Medium-light purple
+        "300": "#BA68C8",  # Medium purple
+        "400": "#AB47BC",  # Medium-dark purple
+        "500": "#8E24AA",  # Primary purple
+        "600": "#8E24AA",  # Same as primary
+        "700": "#7B1FA2",  # Dark purple
+        "800": "#6A1B9A",  # Darker purple
+        "900": "#4A148C",  # Darkest purple
+    },
+    
+    # Neutral/Gray System - Balanced grays for text and backgrounds
+    "neutral": {
+        "0": "#FFFFFF",    # Pure white
+        "50": "#FAFBFC",   # Almost white
+        "100": "#F4F6F8",  # Very light gray
+        "200": "#E4E7EB",  # Light gray
+        "300": "#D1D5DB",  # Medium-light gray
+        "400": "#9CA3AF",  # Medium gray
+        "500": "#6B7280",  # Balanced gray
+        "600": "#4B5563",  # Medium-dark gray
+        "700": "#374151",  # Dark gray
+        "800": "#1F2937",  # Very dark gray
+        "900": "#111827",  # Almost black
+    },
+    
+    # Semantic Colors - Status and feedback colors
+    "semantic": {
+        "success": {
+            "light": "#D4F4DD",
+            "main": "#2E7D32",
+            "dark": "#1B5E20",
+        },
+        "warning": {
+            "light": "#FFF3CD",
+            "main": "#F57F17",
+            "dark": "#E65100",
+        },
+        "error": {
+            "light": "#FFEBEE",
+            "main": "#D32F2F",
+            "dark": "#B71C1C",
+        },
+        "info": {
+            "light": "#E1F5FE",
+            "main": "#0288D1",
+            "dark": "#01579B",
+        },
+    },
+    
+    # Accent Colors - For highlights and special elements
+    "accent": {
+        "orange": "#FF8F00",
+        "teal": "#00ACC1",
+        "pink": "#E91E63",
+        "green": "#4CAF50",
+        "indigo": "#3F51B5",
+    },
+    
+    # Typography Scale - Modern type scale
+    "typography": {
+        "font_family_primary": "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        "font_family_heading": "'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        "font_family_mono": "'JetBrains Mono', 'SF Mono', Consolas, monospace",
+        
+        "font_size": {
+            "xs": "0.75rem",    # 12px
+            "sm": "0.875rem",   # 14px
+            "base": "1rem",     # 16px
+            "lg": "1.125rem",   # 18px
+            "xl": "1.25rem",    # 20px
+            "2xl": "1.5rem",    # 24px
+            "3xl": "1.875rem",  # 30px
+            "4xl": "2.25rem",   # 36px
+            "5xl": "3rem",      # 48px
+            "6xl": "3.75rem",   # 60px
+        },
+        
+        "font_weight": {
+            "light": "300",
+            "normal": "400",
+            "medium": "500",
+            "semibold": "600",
+            "bold": "700",
+            "extrabold": "800",
+        },
+        
+        "line_height": {
+            "tight": "1.25",
+            "snug": "1.375",
+            "normal": "1.5",
+            "relaxed": "1.625",
+            "loose": "2",
+        },
+    },
+    
+    # Spacing Scale - Consistent spacing system
+    "spacing": {
+        "0": "0",
+        "1": "0.25rem",   # 4px
+        "2": "0.5rem",    # 8px
+        "3": "0.75rem",   # 12px
+        "4": "1rem",      # 16px
+        "5": "1.25rem",   # 20px
+        "6": "1.5rem",    # 24px
+        "8": "2rem",      # 32px
+        "10": "2.5rem",   # 40px
+        "12": "3rem",     # 48px
+        "16": "4rem",     # 64px
+        "20": "5rem",     # 80px
+        "24": "6rem",     # 96px
+        "32": "8rem",     # 128px
+    },
+    
+    # Border Radius System
+    "border_radius": {
+        "none": "0",
+        "sm": "0.125rem",   # 2px
+        "base": "0.25rem",  # 4px
+        "md": "0.375rem",   # 6px
+        "lg": "0.5rem",     # 8px
+        "xl": "0.75rem",    # 12px
+        "2xl": "1rem",      # 16px
+        "3xl": "1.5rem",    # 24px
+        "full": "9999px",   # Fully rounded
+    },
+    
+    # Shadow System - Elevation and depth
+    "shadows": {
+        "xs": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+        "sm": "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
+        "base": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+        "md": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+        "lg": "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+        "xl": "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+        "2xl": "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+        "inner": "inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)",
+    },
+    
+    # Gradients - Beautiful gradient combinations
+    "gradients": {
+        "primary": "linear-gradient(135deg, #1E88E5 0%, #8E24AA 100%)",
+        "secondary": "linear-gradient(135deg, #8E24AA 0%, #E91E63 100%)",
+        "accent": "linear-gradient(135deg, #FF8F00 0%, #F57F17 100%)",
+        "success": "linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%)",
+        "info": "linear-gradient(135deg, #0288D1 0%, #01579B 100%)",
+        "warm": "linear-gradient(135deg, #FF8F00 0%, #E91E63 100%)",
+        "cool": "linear-gradient(135deg, #00ACC1 0%, #1E88E5 100%)",
+        "neutral": "linear-gradient(135deg, #6B7280 0%, #374151 100%)",
+        "glass": "linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%)",
+    },
+}
+
+# Legacy color system for backward compatibility
 THEME_COLORS = {
-    "primary": "#1E88E5",  # More vibrant blue
-    "secondary": "#8E24AA",  # Rich purple
-    "accent": "#FF8F00",  # Warm orange
-    "success": "#2E7D32",  # Deeper green for better contrast
-    "warning": "#F57F17",  # Amber for warnings
-    "error": "#D32F2F",  # Clear red for errors
-    "info": "#0288D1",  # Bright blue for info
-    "light": "#F5F7FA",  # Slightly warmer light background
-    "dark": "#263238",  # Deeper dark for better contrast
-    "muted": "#78909C",  # Balanced muted tone
-    "background": "#FFFFFF",  # Clean white
-    "surface": "#F8F9FA",  # Subtle off-white for cards
-    "text_primary": "#212121",  # Near-black for primary text
-    "text_secondary": "#546E7A",  # Balanced secondary text
-    "border": "#E0E0E0",  # Subtle border color
-    "shadow": "rgba(0,0,0,0.08)",  # Lighter shadow for modern look
-    "gradient_primary": "linear-gradient(135deg, #1E88E5 0%, #8E24AA 100%)",
-    "gradient_accent": "linear-gradient(135deg, #FF8F00 0%, #1E88E5 100%)",
+    "primary": DESIGN_TOKENS["primary"]["500"],
+    "secondary": DESIGN_TOKENS["secondary"]["500"],
+    "accent": DESIGN_TOKENS["accent"]["orange"],
+    "success": DESIGN_TOKENS["semantic"]["success"]["main"],
+    "warning": DESIGN_TOKENS["semantic"]["warning"]["main"],
+    "error": DESIGN_TOKENS["semantic"]["error"]["main"],
+    "info": DESIGN_TOKENS["semantic"]["info"]["main"],
+    "light": DESIGN_TOKENS["neutral"]["100"],
+    "dark": DESIGN_TOKENS["neutral"]["800"],
+    "muted": DESIGN_TOKENS["neutral"]["500"],
+    "background": DESIGN_TOKENS["neutral"]["0"],
+    "surface": DESIGN_TOKENS["neutral"]["50"],
+    "text_primary": DESIGN_TOKENS["neutral"]["900"],
+    "text_secondary": DESIGN_TOKENS["neutral"]["600"],
+    "border": DESIGN_TOKENS["neutral"]["200"],
+    "shadow": "rgba(0,0,0,0.08)",
+    "gradient_primary": DESIGN_TOKENS["gradients"]["primary"],
+    "gradient_accent": DESIGN_TOKENS["gradients"]["accent"],
 }
 
 
@@ -34,14 +206,76 @@ def get_theme_colors() -> Dict[str, str]:
     return THEME_COLORS.copy()
 
 
-def apply_custom_css():
-    """Apply comprehensive custom CSS styling to the Streamlit app with performance optimizations"""
+def get_design_tokens() -> Dict[str, Any]:
+    """Get the complete design token system"""
+    return DESIGN_TOKENS.copy()
 
+
+def get_color(color_name: str, shade: str = "500") -> str:
+    """
+    Get a color from the design system
+    
+    Args:
+        color_name: Name of the color (primary, secondary, neutral, etc.)
+        shade: Shade number (50-900) or semantic name (light, main, dark)
+    
+    Returns:
+        Color hex code or CSS value
+    """
+    tokens = DESIGN_TOKENS
+    
+    # Handle semantic colors
+    if color_name in tokens["semantic"]:
+        return tokens["semantic"][color_name].get(shade, tokens["semantic"][color_name]["main"])
+    
+    # Handle accent colors
+    if color_name in tokens["accent"]:
+        return tokens["accent"][color_name]
+    
+    # Handle gradients
+    if color_name in tokens["gradients"]:
+        return tokens["gradients"][color_name]
+    
+    # Handle primary/secondary/neutral colors with shades
+    if color_name in tokens and isinstance(tokens[color_name], dict):
+        return tokens[color_name].get(shade, tokens[color_name].get("500", "#000000"))
+    
+    # Fallback to legacy colors
+    return THEME_COLORS.get(color_name, "#000000")
+
+
+def get_spacing(size: str) -> str:
+    """Get spacing value from design tokens"""
+    return DESIGN_TOKENS["spacing"].get(size, "1rem")
+
+
+def get_typography(property_name: str, value: str) -> str:
+    """Get typography value from design tokens"""
+    return DESIGN_TOKENS["typography"].get(property_name, {}).get(value, "")
+
+
+def get_shadow(level: str) -> str:
+    """Get shadow value from design tokens"""
+    return DESIGN_TOKENS["shadows"].get(level, "none")
+
+
+def get_border_radius(size: str) -> str:
+    """Get border radius value from design tokens"""
+    return DESIGN_TOKENS["border_radius"].get(size, "0.25rem")
+
+
+def apply_custom_css():
+    """Apply comprehensive custom CSS styling with modern design tokens"""
+
+    # Get design tokens
+    tokens = get_design_tokens()
+    colors = get_theme_colors()
+    
     # Performance-optimized CSS with font-display and resource hints
     css = f"""
     <style>
     /* Performance optimizations */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
     
     /* Font face declarations with font-display for performance */
     @font-face {{
@@ -56,38 +290,175 @@ def apply_custom_css():
         src: local('Poppins');
     }}
     
-    /* Root Variables */
+    @font-face {{
+        font-family: 'JetBrains Mono';
+        font-display: swap;
+        src: local('JetBrains Mono');
+    }}
+    
+    /* Modern Design Token System */
     :root {{
-        /* Colors */
-        --primary-color: {THEME_COLORS["primary"]};
-        --secondary-color: {THEME_COLORS["secondary"]};
-        --accent-color: {THEME_COLORS["accent"]};
-        --success-color: {THEME_COLORS["success"]};
-        --warning-color: {THEME_COLORS["warning"]};
-        --error-color: {THEME_COLORS["error"]};
-        --info-color: {THEME_COLORS["info"]};
-        --light-color: {THEME_COLORS["light"]};
-        --dark-color: {THEME_COLORS["dark"]};
-        --muted-color: {THEME_COLORS["muted"]};
-        --background-color: {THEME_COLORS["background"]};
-        --surface-color: {THEME_COLORS["surface"]};
-        --text-primary: {THEME_COLORS["text_primary"]};
-        --text-secondary: {THEME_COLORS["text_secondary"]};
-        --border-color: {THEME_COLORS["border"]};
-        --shadow-color: {THEME_COLORS["shadow"]};
-        --gradient-primary: {THEME_COLORS["gradient_primary"]};
-        --gradient-accent: {THEME_COLORS["gradient_accent"]};
+        /* Primary Color Scale */
+        --primary-50: {tokens["primary"]["50"]};
+        --primary-100: {tokens["primary"]["100"]};
+        --primary-200: {tokens["primary"]["200"]};
+        --primary-300: {tokens["primary"]["300"]};
+        --primary-400: {tokens["primary"]["400"]};
+        --primary-500: {tokens["primary"]["500"]};
+        --primary-600: {tokens["primary"]["600"]};
+        --primary-700: {tokens["primary"]["700"]};
+        --primary-800: {tokens["primary"]["800"]};
+        --primary-900: {tokens["primary"]["900"]};
         
-        /* Typography */
-        --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        --font-heading: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
-        --line-height-normal: 1.5;
-        --line-height-heading: 1.3;
+        /* Secondary Color Scale */
+        --secondary-50: {tokens["secondary"]["50"]};
+        --secondary-100: {tokens["secondary"]["100"]};
+        --secondary-200: {tokens["secondary"]["200"]};
+        --secondary-300: {tokens["secondary"]["300"]};
+        --secondary-400: {tokens["secondary"]["400"]};
+        --secondary-500: {tokens["secondary"]["500"]};
+        --secondary-600: {tokens["secondary"]["600"]};
+        --secondary-700: {tokens["secondary"]["700"]};
+        --secondary-800: {tokens["secondary"]["800"]};
+        --secondary-900: {tokens["secondary"]["900"]};
         
-        /* Spacing System - 8pt grid */
-        --spacing-xxs: 0.25rem;  /* 4px */
-        --spacing-xs: 0.5rem;    /* 8px */
-        --spacing-sm: 0.75rem;   /* 12px */
+        /* Neutral/Gray Scale */
+        --neutral-0: {tokens["neutral"]["0"]};
+        --neutral-50: {tokens["neutral"]["50"]};
+        --neutral-100: {tokens["neutral"]["100"]};
+        --neutral-200: {tokens["neutral"]["200"]};
+        --neutral-300: {tokens["neutral"]["300"]};
+        --neutral-400: {tokens["neutral"]["400"]};
+        --neutral-500: {tokens["neutral"]["500"]};
+        --neutral-600: {tokens["neutral"]["600"]};
+        --neutral-700: {tokens["neutral"]["700"]};
+        --neutral-800: {tokens["neutral"]["800"]};
+        --neutral-900: {tokens["neutral"]["900"]};
+        
+        /* Semantic Colors */
+        --success-light: {tokens["semantic"]["success"]["light"]};
+        --success-main: {tokens["semantic"]["success"]["main"]};
+        --success-dark: {tokens["semantic"]["success"]["dark"]};
+        --warning-light: {tokens["semantic"]["warning"]["light"]};
+        --warning-main: {tokens["semantic"]["warning"]["main"]};
+        --warning-dark: {tokens["semantic"]["warning"]["dark"]};
+        --error-light: {tokens["semantic"]["error"]["light"]};
+        --error-main: {tokens["semantic"]["error"]["main"]};
+        --error-dark: {tokens["semantic"]["error"]["dark"]};
+        --info-light: {tokens["semantic"]["info"]["light"]};
+        --info-main: {tokens["semantic"]["info"]["main"]};
+        --info-dark: {tokens["semantic"]["info"]["dark"]};
+        
+        /* Accent Colors */
+        --accent-orange: {tokens["accent"]["orange"]};
+        --accent-teal: {tokens["accent"]["teal"]};
+        --accent-pink: {tokens["accent"]["pink"]};
+        --accent-green: {tokens["accent"]["green"]};
+        --accent-indigo: {tokens["accent"]["indigo"]};
+        
+        /* Gradients */
+        --gradient-primary: {tokens["gradients"]["primary"]};
+        --gradient-secondary: {tokens["gradients"]["secondary"]};
+        --gradient-accent: {tokens["gradients"]["accent"]};
+        --gradient-success: {tokens["gradients"]["success"]};
+        --gradient-info: {tokens["gradients"]["info"]};
+        --gradient-warm: {tokens["gradients"]["warm"]};
+        --gradient-cool: {tokens["gradients"]["cool"]};
+        --gradient-neutral: {tokens["gradients"]["neutral"]};
+        --gradient-glass: {tokens["gradients"]["glass"]};
+        
+        /* Typography System */
+        --font-family-primary: {tokens["typography"]["font_family_primary"]};
+        --font-family-heading: {tokens["typography"]["font_family_heading"]};
+        --font-family-mono: {tokens["typography"]["font_family_mono"]};
+        
+        /* Font Sizes */
+        --font-size-xs: {tokens["typography"]["font_size"]["xs"]};
+        --font-size-sm: {tokens["typography"]["font_size"]["sm"]};
+        --font-size-base: {tokens["typography"]["font_size"]["base"]};
+        --font-size-lg: {tokens["typography"]["font_size"]["lg"]};
+        --font-size-xl: {tokens["typography"]["font_size"]["xl"]};
+        --font-size-2xl: {tokens["typography"]["font_size"]["2xl"]};
+        --font-size-3xl: {tokens["typography"]["font_size"]["3xl"]};
+        --font-size-4xl: {tokens["typography"]["font_size"]["4xl"]};
+        --font-size-5xl: {tokens["typography"]["font_size"]["5xl"]};
+        --font-size-6xl: {tokens["typography"]["font_size"]["6xl"]};
+        
+        /* Font Weights */
+        --font-weight-light: {tokens["typography"]["font_weight"]["light"]};
+        --font-weight-normal: {tokens["typography"]["font_weight"]["normal"]};
+        --font-weight-medium: {tokens["typography"]["font_weight"]["medium"]};
+        --font-weight-semibold: {tokens["typography"]["font_weight"]["semibold"]};
+        --font-weight-bold: {tokens["typography"]["font_weight"]["bold"]};
+        --font-weight-extrabold: {tokens["typography"]["font_weight"]["extrabold"]};
+        
+        /* Line Heights */
+        --line-height-tight: {tokens["typography"]["line_height"]["tight"]};
+        --line-height-snug: {tokens["typography"]["line_height"]["snug"]};
+        --line-height-normal: {tokens["typography"]["line_height"]["normal"]};
+        --line-height-relaxed: {tokens["typography"]["line_height"]["relaxed"]};
+        --line-height-loose: {tokens["typography"]["line_height"]["loose"]};
+        
+        /* Spacing Scale */
+        --spacing-0: {tokens["spacing"]["0"]};
+        --spacing-1: {tokens["spacing"]["1"]};
+        --spacing-2: {tokens["spacing"]["2"]};
+        --spacing-3: {tokens["spacing"]["3"]};
+        --spacing-4: {tokens["spacing"]["4"]};
+        --spacing-5: {tokens["spacing"]["5"]};
+        --spacing-6: {tokens["spacing"]["6"]};
+        --spacing-8: {tokens["spacing"]["8"]};
+        --spacing-10: {tokens["spacing"]["10"]};
+        --spacing-12: {tokens["spacing"]["12"]};
+        --spacing-16: {tokens["spacing"]["16"]};
+        --spacing-20: {tokens["spacing"]["20"]};
+        --spacing-24: {tokens["spacing"]["24"]};
+        --spacing-32: {tokens["spacing"]["32"]};
+        
+        /* Border Radius */
+        --border-radius-none: {tokens["border_radius"]["none"]};
+        --border-radius-sm: {tokens["border_radius"]["sm"]};
+        --border-radius-base: {tokens["border_radius"]["base"]};
+        --border-radius-md: {tokens["border_radius"]["md"]};
+        --border-radius-lg: {tokens["border_radius"]["lg"]};
+        --border-radius-xl: {tokens["border_radius"]["xl"]};
+        --border-radius-2xl: {tokens["border_radius"]["2xl"]};
+        --border-radius-3xl: {tokens["border_radius"]["3xl"]};
+        --border-radius-full: {tokens["border_radius"]["full"]};
+        
+        /* Shadow System */
+        --shadow-xs: {tokens["shadows"]["xs"]};
+        --shadow-sm: {tokens["shadows"]["sm"]};
+        --shadow-base: {tokens["shadows"]["base"]};
+        --shadow-md: {tokens["shadows"]["md"]};
+        --shadow-lg: {tokens["shadows"]["lg"]};
+        --shadow-xl: {tokens["shadows"]["xl"]};
+        --shadow-2xl: {tokens["shadows"]["2xl"]};
+        --shadow-inner: {tokens["shadows"]["inner"]};
+        
+        /* Legacy Variables for Backward Compatibility */
+        --primary-color: var(--primary-500);
+        --secondary-color: var(--secondary-500);
+        --accent-color: var(--accent-orange);
+        --success-color: var(--success-main);
+        --warning-color: var(--warning-main);
+        --error-color: var(--error-main);
+        --info-color: var(--info-main);
+        --light-color: var(--neutral-100);
+        --dark-color: var(--neutral-800);
+        --muted-color: var(--neutral-500);
+        --background-color: var(--neutral-0);
+        --surface-color: var(--neutral-50);
+        --text-primary: var(--neutral-900);
+        --text-secondary: var(--neutral-600);
+        --border-color: var(--neutral-200);
+        --shadow-color: rgba(0,0,0,0.08);
+        
+        /* Typography Legacy */
+        --font-primary: var(--font-family-primary);
+        --font-heading: var(--font-family-heading);
+        --line-height-normal: var(--line-height-normal);
+        --line-height-heading: var(--line-height-snug);
         --spacing-md: 1rem;      /* 16px */
         --spacing-lg: 1.5rem;    /* 24px */
         --spacing-xl: 2rem;      /* 32px */
@@ -214,24 +585,65 @@ def apply_custom_css():
         contain: layout style; /* CSS containment for performance */
     }}
     
-    /* Layout Shift Prevention */
+    /* Layout Shift Prevention - Fixed scroll issues */
     .stMainBlockContainer {{
-        min-height: 100vh; /* Prevent vertical jumping */
+        /* Removed min-height: 100vh to fix scroll */
         contain: layout style;
     }}
     
     .stSidebar {{
-        min-height: 100vh;
+        /* Removed min-height: 100vh to fix scroll */
         contain: layout style;
     }}
     
-    /* Prevent content jumping during load */
-    .st-emotion-cache-tn0cau {{
-        min-height: 60px; /* Reserve space for content */
+    /* Form and Modal Improvements */
+    .stForm {{
+        background: var(--surface-color);
+        padding: var(--spacing-lg);
+        border-radius: var(--border-radius-md);
+        border: 1px solid var(--border-color);
+        margin: var(--spacing-md) 0;
+        box-shadow: var(--shadow-sm);
+        max-width: 100%;
+        overflow: visible;
     }}
     
-    .st-emotion-cache-6px8kg {{
-        min-height: 80px; /* Reserve space for headers */
+    /* Tab content improvements */
+    .stTabs [data-baseweb="tab-list"] {{
+        gap: var(--spacing-sm);
+    }}
+    
+    .stTabs [data-baseweb="tab"] {{
+        height: auto;
+        padding: var(--spacing-sm) var(--spacing-md);
+        border-radius: var(--border-radius-sm);
+    }}
+    
+    /* Error and warning message improvements */
+    .stAlert {{
+        margin: var(--spacing-xs) 0;
+        border-radius: var(--border-radius-sm);
+        border-left: 4px solid;
+    }}
+    
+    .stAlert[data-testid="alertError"] {{
+        border-left-color: var(--error-color);
+        background-color: rgba(211, 47, 47, 0.1);
+    }}
+    
+    .stAlert[data-testid="alertWarning"] {{
+        border-left-color: var(--warning-color);
+        background-color: rgba(245, 127, 23, 0.1);
+    }}
+    
+    /* Improve input spacing */
+    .stTextInput > div > div > input {{
+        margin-bottom: var(--spacing-xs);
+    }}
+    
+    /* Checkbox improvements */
+    .stCheckbox {{
+        margin: var(--spacing-sm) 0;
     }}
     
     /* Button containers with fixed dimensions */

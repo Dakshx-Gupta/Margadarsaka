@@ -111,18 +111,18 @@ class AppwriteOAuth2Manager:
             logger.error(f"Error getting OAuth user info: {e}")
             return None
 
-    def create_oauth2_session(
+    def create_oauth2_token(
         self, provider: str, scopes: Optional[List[str]] = None
     ) -> bool:
         """
-        Create OAuth 2 session with specified provider
+        Create OAuth 2 token with specified provider, which redirects the user.
 
         Args:
             provider: OAuth provider (google, github, etc.)
             scopes: List of OAuth scopes to request
 
         Returns:
-            bool: True if session creation was successful
+            bool: True if the redirect was initiated successfully.
         """
         try:
             if not self.appwrite_service:
@@ -133,23 +133,21 @@ class AppwriteOAuth2Manager:
             if not scopes:
                 scopes = self._get_default_scopes(provider)
 
-            # Create OAuth 2 session - this will redirect to provider
-            session = self.appwrite_service.create_oauth2_session(
+            # Create OAuth 2 token - this will trigger a redirect
+            self.appwrite_service.create_oauth2_token(
                 provider=provider,
                 success=self.success_url,
                 failure=self.failure_url,
                 scopes=scopes,
             )
-
-            if session:
-                st.success(f"Redirecting to {provider.title()} for authentication...")
-                return True
-            else:
-                st.error(f"Failed to initialize {provider.title()} authentication")
-                return False
+            
+            # If the above call doesn't raise an exception, it means the redirect is happening.
+            st.success(f"Redirecting to {provider.title()} for authentication...")
+            # We might not even see this message as the browser will be redirected.
+            return True
 
         except Exception as e:
-            logger.error(f"Error creating OAuth 2 session: {e}")
+            logger.error(f"Error creating OAuth 2 token: {e}")
             st.error(f"Authentication error: {str(e)}")
             return False
 
@@ -172,7 +170,7 @@ class AppwriteOAuth2Manager:
             if not self.appwrite_service:
                 return False
 
-            session = self.appwrite_service.update_session("current")
+            session = self.appwrite_service.update_session(session_id="current")
             if session:
                 logger.info("OAuth 2 session refreshed successfully")
                 return True
@@ -185,7 +183,7 @@ class AppwriteOAuth2Manager:
         """Logout the current OAuth 2 user"""
         try:
             if self.appwrite_service:
-                self.appwrite_service.delete_session("current")
+                self.appwrite_service.delete_session(session_id="current")
 
             # Clear local state
             self.state.set("oauth_user", None)
@@ -236,7 +234,7 @@ class AppwriteOAuth2Manager:
                     use_container_width=True,
                     type="secondary",
                 ):
-                    self.create_oauth2_session(provider["id"], provider["scopes"])
+                    self.create_oauth2_token(provider["id"], provider["scopes"])
 
     def render_user_profile(self) -> None:
         """Render OAuth 2 user profile information"""
@@ -336,7 +334,6 @@ def render_oauth2_authentication_section(
     return auth_manager
 
 
-@st.experimental_fragment
 def oauth2_route_guard(func):
     """
     Decorator to protect routes with OAuth 2 authentication

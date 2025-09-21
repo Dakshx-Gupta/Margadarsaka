@@ -50,6 +50,75 @@
 ## 🚀 Quick Start
 
 ### Prerequisites
+- Python 3.12+
+- [UV](https://docs.astral.sh/uv/) package manager
+- [Deno](https://deno.land/) runtime (for custom components)
+
+### Installation
+
+#### Using UV (Recommended)
+```bash
+# Clone the repository
+git clone https://github.com/Dakshx-Gupta/Margadarsaka.git
+cd Margadarsaka
+
+# Install dependencies
+uv sync
+
+# Run the application
+uv run python run.py ui --ui-mode modern
+```
+
+#### Traditional pip
+```bash
+# Clone and setup
+git clone https://github.com/Dakshx-Gupta/Margadarsaka.git
+cd Margadarsaka
+
+# Create virtual environment
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install dependencies
+pip install -e .
+
+# Run the application
+python run.py ui --ui-mode modern
+```
+
+### 🌐 Deployment Options
+
+#### Appwrite Sites (Recommended)
+```bash
+# Create deployment package
+python create_integrated_package.py
+
+# Upload margadarsaka_for_appwrite.zip to Appwrite Sites
+# Configure build settings:
+#   - Install command: curl -LsSf https://astral.sh/uv/install.sh | sh && uv sync
+#   - Build command: (leave empty - components pre-built with Deno)
+#   - Output directory: ./
+```
+
+#### Docker
+```bash
+# Build container
+docker build -t margadarsaka .
+
+# Run container
+docker run -p 8501:8501 margadarsaka
+```
+
+#### Local Development
+```bash
+# Run Streamlit UI
+uv run python run.py ui --ui-mode modern --port 8501
+
+# Run FastAPI backend (optional)
+uv run python run.py api --port 8000
+```
+
+### Prerequisites
 - **Python 3.12+**
 - **[UV Package Manager](https://docs.astral.sh/uv/getting-started/installation/)**
 - **[Doppler CLI](https://docs.doppler.com/docs/install-cli)** (optional for secrets management)

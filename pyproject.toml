@@ -42,6 +42,7 @@ dependencies = [
     "doppler-sdk==1.3.0",
     "python-dotenv>=1.1.1",
     "appwrite>=8.0.0",
+    "authlib>=1.6.4",
 ]
 authors = [
     { name = "Dakshx-Gupta", email = "dakshx.gupta@example.com" }

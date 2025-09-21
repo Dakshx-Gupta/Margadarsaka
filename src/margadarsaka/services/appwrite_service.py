@@ -17,6 +17,7 @@ from appwrite.services.storage import Storage
 from appwrite.services.users import Users
 from appwrite.exception import AppwriteException
 from appwrite.id import ID
+from appwrite.input_file import InputFile
 
 # Import unified secrets management
 from margadarsaka.secrets import SecretsManager
@@ -352,47 +353,57 @@ class AppwriteService:
 
     # OAuth 2 Authentication Methods
 
-    def create_oauth2_session(
+    def create_oauth2_token(
         self,
         provider: str,
         success: Optional[str] = None,
         failure: Optional[str] = None,
         scopes: Optional[List[str]] = None,
-    ) -> Optional[str]:
+    ):
         """
-        Create OAuth 2 session with specified provider.
+        Create OAuth 2 token with specified provider.
         This will redirect the user to the OAuth provider's login page.
-
-        Args:
-            provider: OAuth provider (google, github, facebook, etc.)
-            success: Success redirect URL
-            failure: Failure redirect URL
-            scopes: List of OAuth scopes to request
-
-        Returns:
-            OAuth session URL or None if failed
         """
         if not self.is_configured():
-            logger.warning("Appwrite not configured - OAuth session creation skipped")
-            return None
+            logger.warning("Appwrite not configured - OAuth token creation skipped")
+            return
 
         try:
-            # Convert scopes list to comma-separated string if provided
-            scopes_str = ",".join(scopes) if scopes else None
-
-            # Create OAuth 2 session - this returns a redirect URL
-            oauth_url = self.account.create_o_auth2_session(
-                provider=provider, success=success, failure=failure, scopes=scopes_str
+            # Create OAuth 2 token - this returns a redirect URL
+            self.account.create_o_auth2_token(
+                provider=provider, success=success, failure=failure, scopes=scopes
             )
-
-            logger.info(f"OAuth 2 session created for provider: {provider}")
-            return oauth_url
+            logger.info(f"OAuth 2 token created for provider: {provider}")
 
         except AppwriteException as e:
-            logger.error(f"Failed to create OAuth 2 session for {provider}: {e}")
+            logger.error(f"Failed to create OAuth 2 token for {provider}: {e}")
+        except Exception as e:
+            logger.error(f"Unexpected error creating OAuth 2 token: {e}")
+
+    def create_session_from_token(self, user_id: str, secret: str) -> Optional[Dict[str, Any]]:
+        """
+        Create a session from a token (e.g., from OAuth redirect).
+
+        Args:
+            user_id: User ID from the token.
+            secret: Secret from the token.
+
+        Returns:
+            The created session object or None on failure.
+        """
+        if not self.is_configured():
+            logger.warning("Appwrite not configured - session creation from token skipped")
+            return None
+        
+        try:
+            session = self.account.create_session(user_id=user_id, secret=secret)
+            logger.info(f"Session created successfully for user: {user_id}")
+            return session
+        except AppwriteException as e:
+            logger.error(f"Failed to create session from token for user {user_id}: {e}")
             return None
         except Exception as e:
-            logger.error(f"Unexpected error creating OAuth 2 session: {e}")
+            logger.error(f"Unexpected error creating session from token: {e}")
             return None
 
     def get_session(self, session_id: str = "current") -> Optional[Dict[str, Any]]:
@@ -416,7 +427,7 @@ class AppwriteService:
             logger.debug(f"Failed to get session {session_id}: {e}")
             return None
 
-    def update_session(self, session_id: str = "current") -> Optional[Dict[str, Any]]:
+    def update_session(self, session_id: str) -> Optional[Dict[str, Any]]:
         """
         Update OAuth 2 session to refresh access tokens.
 
@@ -430,14 +441,14 @@ class AppwriteService:
             return None
 
         try:
-            updated_session = self.account.update_session(session_id)
+            updated_session = self.account.update_session(session_id=session_id)
             logger.info(f"OAuth 2 session refreshed: {session_id}")
             return updated_session
         except AppwriteException as e:
             logger.error(f"Failed to refresh OAuth session {session_id}: {e}")
             return None
 
-    def delete_session(self, session_id: str = "current") -> bool:
+    def delete_session(self, session_id: str) -> bool:
         """
         Delete a specific session (OAuth or email/password).
 
@@ -451,7 +462,7 @@ class AppwriteService:
             return False
 
         try:
-            self.account.delete_session(session_id)
+            self.account.delete_session(session_id=session_id)
             logger.info(f"Session deleted: {session_id}")
             return True
         except AppwriteException as e:
@@ -648,12 +659,11 @@ class AppwriteService:
             return None
 
         try:
-            with open(file_path, "rb") as file:
-                result = self.storage.create_file(
-                    bucket_id=self.storage_bucket_id,
-                    file_id=file_id or ID.unique(),
-                    file=file,
-                )
+            result = self.storage.create_file(
+                bucket_id=self.storage_bucket_id,
+                file_id=file_id or ID.unique(),
+                file=InputFile.from_path(file_path),
+            )
             logger.info(f"File uploaded: {result['$id']}")
             return result
         except AppwriteException as e:

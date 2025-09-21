@@ -18,6 +18,7 @@ try:
     from margadarsaka.ui.utils.i18n import get_text, get_cultural_greeting
     from margadarsaka.ui.utils.state_manager import get_state_manager
     from margadarsaka.services.appwrite_service import AppwriteService
+    from margadarsaka.ui.components.oauth_auth import AppwriteOAuth2Manager
 
     IMPORTS_AVAILABLE = True
 except ImportError as e:
@@ -133,7 +134,7 @@ class FormValidator:
                 default="Password must contain at least one lowercase letter",
             )
 
-        if not re.search(r"\\d", password):
+        if not re.search(r"\d", password):
             errors["password_number"] = get_text(
                 "password_need_number",
                 default="Password must contain at least one number",
@@ -163,7 +164,7 @@ class FormValidator:
 
     @staticmethod
     def validate_name(name: str) -> ValidationResult:
-        """Validate full name with reasonable character support"""
+        """Validate full name with reasonable character support for international users"""
         errors = {}
         warnings = {}
 
@@ -173,10 +174,14 @@ class FormValidator:
             errors["name"] = get_text(
                 "name_too_short", default="Name must be at least 2 characters long"
             )
-        elif not re.match(r"^[a-zA-Z0-9\s._'-]+$", name):
+        elif not re.match(r"^[a-zA-Z0-9\u00C0-\u017F\u0900-\u097F\s._'-]+$", name):
+            # More permissive regex that includes:
+            # - Basic Latin and Latin-1 supplement (accented characters)
+            # - Devanagari script (Hindi)
+            # - Basic punctuation and spaces
             errors["name"] = get_text(
                 "invalid_name_chars",
-                default="Name can only contain letters, numbers, spaces, dots, underscores, hyphens, and apostrophes",
+                default="Name contains invalid characters. Please use only letters, numbers, and basic punctuation.",
             )
         elif len(name.strip()) > 100:
             errors["name"] = get_text(
@@ -198,6 +203,24 @@ class AuthComponent:
         self.appwrite_service = appwrite_service
         self.state = get_state_manager()
         self.validator = FormValidator()
+        # Initialize OAuth manager
+        self.oauth_manager = AppwriteOAuth2Manager(appwrite_service) if appwrite_service else None
+
+    def check_oauth_session(self) -> Optional[Dict[str, Any]]:
+        """Check if user is logged in via OAuth and return user info"""
+        if self.oauth_manager:
+            try:
+                if self.oauth_manager.is_logged_in():
+                    user_info = self.oauth_manager.get_user_info()
+                    if user_info:
+                        # Update session state
+                        self.state.set("user_authenticated", True)
+                        self.state.set("current_user", user_info)
+                        self.state.set("auth_method", "oauth")
+                        return user_info
+            except Exception as e:
+                logger.debug(f"OAuth session check failed: {e}")
+        return None
 
     def show_auth_header(self, mode: AuthMode):
         """Show authentication header with greeting"""
@@ -424,17 +447,23 @@ class AuthComponent:
     def _handle_login(
         self, email: str, password: str, remember_me: bool
     ) -> Optional[Dict[str, Any]]:
-        """Handle login submission"""
-        # Validate inputs
-        email_validation = self.validator.validate_email(email)
-        if not email_validation.is_valid:
-            self.show_validation_messages(email_validation)
-            return None
+        """Handle login submission with improved validation"""
+        
+        # Simple validation - just check if fields are filled
+        errors = []
+        
+        if not email or not email.strip():
+            errors.append(get_text("email_required", default="Email is required"))
+        elif "@" not in email:  # Basic email check, don't be too strict
+            errors.append(get_text("invalid_email", default="Please enter a valid email address"))
 
         if not password:
-            st.error(
-                "❌ " + get_text("password_required", default="Password is required")
-            )
+            errors.append(get_text("password_required", default="Password is required"))
+
+        # Display all errors at once
+        if errors:
+            for error in errors:
+                st.error(f"❌ {error}")
             return None
 
         # Show loading state
@@ -494,8 +523,11 @@ class AuthComponent:
         terms_accepted: bool,
         age_verified: bool,
     ) -> Optional[Dict[str, Any]]:
-        """Handle registration submission"""
+        """Handle registration submission with improved validation"""
 
+        # Clear any previous error messages
+        placeholder = st.empty()
+        
         # Validate all inputs
         name_validation = self.validator.validate_name(full_name)
         email_validation = self.validator.validate_email(email)
@@ -503,47 +535,50 @@ class AuthComponent:
             password, confirm_password
         )
 
-        # Check validations
+        # Collect all errors first
+        all_errors = []
+        all_warnings = []
+        
         if not name_validation.is_valid:
-            self.show_validation_messages(name_validation)
-            return None
-
+            all_errors.extend(name_validation.errors.values())
+        else:
+            all_warnings.extend(name_validation.warnings.values())
+            
         if not email_validation.is_valid:
-            self.show_validation_messages(email_validation)
-            return None
-
+            all_errors.extend(email_validation.errors.values())
+        else:
+            all_warnings.extend(email_validation.warnings.values())
+            
         if not password_validation.is_valid:
-            self.show_validation_messages(password_validation)
-            return None
-
-        # Show warnings
-        if (
-            name_validation.warnings
-            or email_validation.warnings
-            or password_validation.warnings
-        ):
-            self.show_validation_messages(name_validation)
-            self.show_validation_messages(email_validation)
-            self.show_validation_messages(password_validation)
+            all_errors.extend(password_validation.errors.values())
+        else:
+            all_warnings.extend(password_validation.warnings.values())
 
         # Check required checkboxes
         if not terms_accepted:
-            st.error(
-                "❌ "
-                + get_text(
+            all_errors.append(
+                get_text(
                     "must_accept_terms", default="You must accept the Terms of Service"
                 )
             )
-            return None
 
         if not age_verified:
-            st.error(
-                "❌ "
-                + get_text(
+            all_errors.append(
+                get_text(
                     "must_verify_age", default="You must be at least 13 years old"
                 )
             )
+
+        # Display errors (stop if any)
+        if all_errors:
+            for error in all_errors:
+                st.error(f"❌ {error}")
             return None
+            
+        # Display warnings (but continue)
+        if all_warnings:
+            for warning in all_warnings:
+                st.warning(f"⚠️ {warning}")
 
         # Show loading state
         with st.spinner(
@@ -621,25 +656,83 @@ class AuthComponent:
                 st.error(f"❌ Failed to send reset instructions: {str(e)}")
 
     def render_social_login(self):
-        """Render social login options"""
+        """Render social login options with actual OAuth functionality"""
         st.markdown("---")
         st.markdown(
             "### 🔗 " + get_text("or_continue_with", default="Or continue with")
         )
 
-        col1, col2, col3 = st.columns(3)
+        # Check if OAuth is available
+        if self.oauth_manager and self.appwrite_service and self.appwrite_service.is_configured():
+            # Define available providers with their display information
+            providers = [
+                {
+                    "id": "google",
+                    "name": "Google",
+                    "icon": "🔍",
+                    "scopes": ["openid", "email", "profile"],
+                },
+                {
+                    "id": "github", 
+                    "name": "GitHub",
+                    "icon": "🐙",
+                    "scopes": ["user:email", "read:user"],
+                },
+                {
+                    "id": "microsoft",
+                    "name": "Microsoft", 
+                    "icon": "📧",
+                    "scopes": ["openid", "email", "profile"],
+                },
+            ]
+            
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                if st.button(f"{providers[0]['icon']} {providers[0]['name']}", use_container_width=True, key="oauth_google"):
+                    try:
+                        success = self.oauth_manager.create_oauth2_session(providers[0]['id'], providers[0]['scopes'])
+                        if success:
+                            st.success(f"Redirecting to {providers[0]['name']} for authentication...")
+                            st.rerun()
+                    except Exception as e:
+                        st.error(f"Authentication error: {str(e)}")
 
-        with col1:
-            if st.button("🔍 Google", use_container_width=True):
-                st.info("Google login will be available soon!")
+            with col2:
+                if st.button(f"{providers[1]['icon']} {providers[1]['name']}", use_container_width=True, key="oauth_github"):
+                    try:
+                        success = self.oauth_manager.create_oauth2_session(providers[1]['id'], providers[1]['scopes'])
+                        if success:
+                            st.success(f"Redirecting to {providers[1]['name']} for authentication...")
+                            st.rerun()
+                    except Exception as e:
+                        st.error(f"Authentication error: {str(e)}")
 
-        with col2:
-            if st.button("📧 Microsoft", use_container_width=True):
-                st.info("Microsoft login will be available soon!")
+            with col3:
+                if st.button(f"{providers[2]['icon']} {providers[2]['name']}", use_container_width=True, key="oauth_microsoft"):
+                    try:
+                        success = self.oauth_manager.create_oauth2_session(providers[2]['id'], providers[2]['scopes'])
+                        if success:
+                            st.success(f"Redirecting to {providers[2]['name']} for authentication...")
+                            st.rerun()
+                    except Exception as e:
+                        st.error(f"Authentication error: {str(e)}")
+                        
+        else:
+            # Fallback when OAuth not configured
+            col1, col2, col3 = st.columns(3)
 
-        with col3:
-            if st.button("📱 GitHub", use_container_width=True):
-                st.info("GitHub login will be available soon!")
+            with col1:
+                if st.button("🔍 Google", use_container_width=True):
+                    st.warning("OAuth authentication is not configured. Please check your Appwrite setup.")
+
+            with col2:
+                if st.button("� GitHub", use_container_width=True):
+                    st.warning("OAuth authentication is not configured. Please check your Appwrite setup.")
+
+            with col3:
+                if st.button("📧 Microsoft", use_container_width=True):
+                    st.warning("OAuth authentication is not configured. Please check your Appwrite setup.")
 
     def render_auth_footer(self):
         """Render authentication footer with links"""
@@ -677,6 +770,17 @@ class AuthComponent:
 
     def render(self) -> Optional[Dict[str, Any]]:
         """Main render method for authentication component"""
+
+        # Check for existing OAuth session first
+        oauth_user = self.check_oauth_session()
+        if oauth_user:
+            st.success(f"✅ Already logged in as {oauth_user.get('name', oauth_user.get('email', 'User'))}")
+            if st.button("Continue to Dashboard", type="primary"):
+                return oauth_user
+            if st.button("Logout", type="secondary"):
+                if self.oauth_manager:
+                    self.oauth_manager.logout()
+                return None
 
         # Get current auth mode
         auth_mode_str = self.state.get("auth_mode", AuthMode.LOGIN.value)
