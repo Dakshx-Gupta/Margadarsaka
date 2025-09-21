@@ -1,5 +1,4 @@
 import streamlit as sl
-import polars as pl
 from google import genai 
 import requests
 from streamlit_lottie import st_lottie
@@ -79,7 +78,7 @@ def main_page():
 
     if active_tab == "📊 Career Test":
         display_career_test()
-        
+
     elif active_tab == "🔍 Resume Analyzer":
         user_file = sl.file_uploader("Upload your resume", type = ["pdf", "docx"])
         if user_file is not None:
