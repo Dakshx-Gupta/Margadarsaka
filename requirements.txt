@@ -1,0 +1,7 @@
+streamlit
+requests
+streamlit-lottie
+google-genai
+PyPDF2
+spacy
+python-docx
