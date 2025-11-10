@@ -11,6 +11,157 @@ import spacy
 from PyPDF2 import PdfReader
 from models import ResumeAnalysis, UserProfile
 from career_test import career_questions
+from appwrite.client import Client
+from appwrite.services.account import Account
+from appwrite.id import ID
+import streamlit_cookies_manager as cookies_mgr
+
+# ============================================
+# APPWRITE SETUP
+# ============================================
+def init_appwrite():
+    """Initialize Appwrite client"""
+    client = Client()
+    client.set_endpoint(sl.secrets["APPWRITE_ENDPOINT"])  # Your API Endpoint
+    client.set_project(sl.secrets["APPWRITE_PROJECT_ID"])  # Your project ID
+    
+    account = Account(client)
+    return client, account
+
+# ============================================
+# AUTHENTICATION FUNCTIONS
+# ============================================
+def check_authentication():
+    """Check if user is authenticated"""
+    # Initialize cookies manager
+    cookies = cookies_mgr.EncryptedCookieManager(
+        prefix="margadarsaka_",
+        password=sl.secrets.get("COOKIE_PASSWORD", "your-secret-key-here")
+    )
+    
+    if not cookies.ready():
+        sl.stop()
+    
+    # Check if user session exists
+    if "user_id" in cookies and cookies["user_id"]:
+        return True, cookies["user_id"]
+    
+    return False, None
+
+def login_page():
+    """Display login page with Google OAuth"""
+    sl.set_page_config(
+        page_title="Margadarsaka - Login",
+        page_icon=r"C:\Users\tempe\OneDrive\Documents\Margdarsaka\Margadarsaka\Aldenaire.png"
+    )
+    
+    # Center the content
+    col1, col2, col3 = sl.columns([1, 2, 1])
+    
+    with col2:
+        sl.title("🌟 Welcome to Margadarsaka")
+        sl.markdown("### Your AI-Powered Career Guide")
+        
+        # Lottie animation
+        url = "https://lottie.host/179fa302-85e8-4b84-86ff-d6d44b671ae2/yuf3ctwVdH.json"
+        try:
+            response = requests.get(url)
+            animation_json = response.json()
+            st_lottie(animation_json, height=200, key="login_lottie")
+        except:
+            pass
+        
+        sl.markdown("---")
+        
+        # Initialize Appwrite
+        client, account = init_appwrite()
+        
+        # Get OAuth URL
+        try:
+            # Create OAuth session
+            oauth_url = f"{sl.secrets['APPWRITE_ENDPOINT']}/account/sessions/oauth2/google"
+            
+            sl.info("👋 Sign in to get personalized career guidance")
+            
+            # Google Sign-In Button
+            if sl.button("🔐 Sign in with Google", type="primary", use_container_width=True):
+                # Redirect to OAuth
+                success_url = f"{sl.secrets.get('APP_URL', 'http://localhost:8501')}"
+                failure_url = f"{sl.secrets.get('APP_URL', 'http://localhost:8501')}?auth=failed"
+                
+                full_oauth_url = f"{oauth_url}?success={success_url}&failure={failure_url}&project={sl.secrets['APPWRITE_PROJECT_ID']}"
+                
+                sl.markdown(f'<meta http-equiv="refresh" content="0; url={full_oauth_url}">', unsafe_allow_html=True)
+                sl.write("Redirecting to Google Sign-In...")
+        
+        except Exception as e:
+            sl.error(f"Authentication error: {str(e)}")
+        
+        sl.markdown("---")
+        sl.caption("🔒 Your data is secure and private")
+
+def handle_oauth_callback():
+    """Handle OAuth callback after Google sign-in"""
+    cookies = cookies_mgr.EncryptedCookieManager(
+        prefix="margadarsaka_",
+        password=sl.secrets.get("COOKIE_PASSWORD", "your-secret-key-here")
+    )
+    
+    if not cookies.ready():
+        sl.stop()
+    
+    # Check for auth failure
+    query_params = sl.query_params
+    if "auth" in query_params and query_params["auth"] == "failed":
+        sl.error("Authentication failed. Please try again.")
+        return False
+    
+    try:
+        client, account = init_appwrite()
+        
+        # Get current session
+        user = account.get()
+        
+        # Store user info in cookies
+        cookies["user_id"] = user["$id"]
+        cookies["user_name"] = user.get("name", "User")
+        cookies["user_email"] = user.get("email", "")
+        cookies.save()
+        
+        return True
+        
+    except Exception as e:
+        # User not authenticated yet
+        return False
+
+def logout():
+    """Logout user"""
+    cookies = cookies_mgr.EncryptedCookieManager(
+        prefix="margadarsaka_",
+        password=sl.secrets.get("COOKIE_PASSWORD", "your-secret-key-here")
+    )
+    
+    if not cookies.ready():
+        sl.stop()
+    
+    try:
+        client, account = init_appwrite()
+        # Delete current session
+        account.delete_session('current')
+    except:
+        pass
+    
+    # Clear cookies
+    cookies["user_id"] = ""
+    cookies["user_name"] = ""
+    cookies["user_email"] = ""
+    cookies.save()
+    
+    sl.rerun()
+
+# ============================================
+# EXISTING FUNCTIONS (keeping them as is)
+# ============================================
 
 def display_career_test():
     sl.header("📊 Career Test — Discover Your Path")
@@ -45,7 +196,7 @@ def display_career_test():
             {user_responses}
             """
             with sl.spinner("Analyzing your responses..."):
-                response = client.models.generate_content(
+                response = client_gemini.models.generate_content(
                     model="gemini-2.5-flash",
                     contents=prompt
                 )
@@ -61,14 +212,38 @@ def extract_pdf_text(uploaded_file):
     return text
 
 def main_page():
+    """Main application page (after authentication)"""
+    
+    # Get user info from cookies
+    cookies = cookies_mgr.EncryptedCookieManager(
+        prefix="margadarsaka_",
+        password=sl.secrets.get("COOKIE_PASSWORD", "your-secret-key-here")
+    )
+    
+    if not cookies.ready():
+        sl.stop()
+    
+    user_name = cookies.get("user_name", "User")
+    
     #setting up the page
-    sl.set_page_config(page_title = "Margadarsaka", page_icon = r"C:\Users\tempe\OneDrive\Documents\Margdarsaka\Margadarsaka\Aldenaire.png")
+    sl.set_page_config(
+        page_title="Margadarsaka", 
+        page_icon=r"C:\Users\tempe\OneDrive\Documents\Margdarsaka\Margadarsaka\Aldenaire.png"
+    )
     sl.logo("Aldenaire.png", size="large")
+    
+    # User info and logout in sidebar
+    with sl.sidebar:
+        sl.markdown(f"### 👋 Welcome, {user_name}!")
+        if sl.button("🚪 Logout", type="secondary"):
+            logout()
+    
     url = "https://lottie.host/179fa302-85e8-4b84-86ff-d6d44b671ae2/yuf3ctwVdH.json"
     response = requests.get(url)
     animation_json = response.json()
     st_lottie(animation_json, height=100, key="lottie1")
-    sl.title("🏡Home")
+    
+    sl.title("🏡 Home")
     active_tab = sl.radio(
         "Navigation",
         ["📊 Career Test", "🔍 Resume Analyzer", "📈 Marg AI"],
@@ -80,7 +255,7 @@ def main_page():
         display_career_test()
 
     elif active_tab == "🔍 Resume Analyzer":
-        user_file = sl.file_uploader("Upload your resume", type = ["pdf", "docx"])
+        user_file = sl.file_uploader("Upload your resume", type=["pdf", "docx"])
         if user_file is not None:
             # Save uploaded file temporarily
             temp_file_path = f"temp_resume{user_file.name}"
@@ -136,107 +311,105 @@ def main_page():
                         sl.markdown(f"- {sg}")
 
     elif active_tab == "📈 Marg AI":
-            sl.subheader("🚀 Marg — Career Pathfinder AI")
-            sl.markdown(
-                """
-                <p style="
-                    background-color: #080808; 
-                    padding: 20px; 
-                    border-radius: 10px; 
-                    font-size: 16px;
-                    line-height: 1.5;
-                ">
-                <strong>Welcome!</strong> Your personal career guide is here — ready to help you:<br><br>
-                ✨ Discover side hustles & unconventional career paths<br>
-                💡 Identify skill gaps & growth opportunities<br>
-                🌏 Navigate the Indian job market with confidence<br>
-                📈 Build a personal brand that gets noticed<br><br>
-                Upload your resume, share your skills, and let's explore <strong>creative, practical ways to level up your career</strong>!
-                </p>
-                """, 
-                unsafe_allow_html=True
-            )
-            
-            if "messages" not in sl.session_state:
-                sl.session_state.messages = [
-                    {"role": "system", "content":
-                     '''
-                     You are an AI career advisor, creative skills mentor, and employment strategist. Your expertise includes helping users discover unconventional career paths, identify side hustles, and grow professionally, with a deep understanding of Indian culture, professional expectations, and market dynamics. You combine practical guidance with imaginative strategies for career growth.
-                     Behavior and Approach
-                     Initiate Conversation:
-                     Acknowledge the user's current career situation or job search.
-                     Frame it as an opportunity for self-discovery, skill growth, and experimentation.
-                     Ask the user to describe their goals, current strategies, challenges, and constraints (time, finances, location, family expectations).
-                     Resume Collection and Contextualization:
-                     Ask for the user's resume (CV) via file upload, text paste, or link.
-                     Accept additional context on skills, experiences, projects, and aspirations that may not appear on the resume.
-                     Treat the resume as a starting point and combine it with the user's narrative for a holistic view.
-                     Cultural Awareness:
-                     Apply Indian market knowledge, including local job expectations, competitive exams, certifications, and startup culture.
-                     Factor in family expectations, social norms, and regional professional etiquette.
-                     Consider income potential and cost of living variations in different Indian cities when providing guidance.
-                     Analysis and Recommendations
-                     Skills Assessment and Gap Analysis:
-                     Identify strengths and transferable skills.
-                     Highlight gaps relative to the user's career goals or side-hustle potential.
-                     Suggest targeted improvements: courses, certifications, micro-projects, self-study, or mentorship.
-                     Point out emerging roles and sectors in India that align with their profile.
-                     Side Hustle and Income Opportunities:
-                     Recommend realistic and imaginative ways to monetize skills in India (freelancing, consulting, digital products, teaching, niche services).
-                     Provide rough estimates of earning potential, considering Indian market rates, cost of living, and taxation.
-                     Suggest low-risk experiments and actionable first steps.
-                     Offer guidance on positioning oneself professionally, including personal branding for side hustles.
-                     Unconventional Job Search Strategies:
-                     Recommend 3-5 creative approaches beyond standard job applications:
-                     Targeted Company Projects: Pitch small projects to potential employers.
-                     Niche Community Engagement: Join forums, WhatsApp/Telegram groups, and industry-specific online communities.
-                     Content Creation for Visibility: Share blogs, videos, or posts showcasing expertise.
-                     Reverse Job Posting: Publicly describe ideal roles and invite companies to reach out.
-                     Skills-Based Volunteering: Volunteer with organizations to gain experience and network.
-                     Networking with a Twist: Informational interviews, mentorship, or collaborative projects.
-                     Tailor each suggestion to the user's skills, goals, and Indian context.
-                     Personal Branding and Presentation:
-                     Advise on LinkedIn, personal websites, portfolios, GitHub, and online presence.
-                     Show how to highlight unconventional experiences and side hustles effectively.
-                     Suggest ways to craft a professional story connecting past experience, current skills, and future goals.
-                     Behavioral and Mindset Coaching:
-                     Encourage proactive, growth-oriented thinking.
-                     Provide strategies to handle rejection, setbacks, or uncertainty.
-                     Promote reflection and iterative improvement for career decisions.
-                     Scenario Planning and Strategic Thinking:
-                     Offer short-term (1-year) and long-term (5-year) career path scenarios.
-                     Discuss risks, rewards, and fallback strategies for each approach.
-                     Suggest stretch opportunities where the user could significantly increase skills, visibility, or income.
-                     Continuous Improvement Loop:
-                     Encourage tracking results and reflecting on outcomes.
-                     Refine strategies based on what works and what doesn't.
-                     Recommend documentation of projects and learning for portfolio building.
-                     Tone and Style
-                     Supportive, encouraging, and empowering.
-                     Practical but imaginative, combining visionary guidance with actionable steps.
-                     Focus on opportunity, growth, and creative exploration, avoiding fear or limitation.
-                     '''}]
-         
-            # Display previous messages
-            for msg in sl.session_state.messages[1:]:  # skip system msg
-                with sl.chat_message(msg["role"]):
-                    sl.markdown(msg["content"])
+        sl.subheader("🚀 Marg — Career Pathfinder AI")
+        sl.markdown(
+            """
+            <p style="
+                background-color: #080808; 
+                padding: 20px; 
+                border-radius: 10px; 
+                font-size: 16px;
+                line-height: 1.5;
+            ">
+            <strong>Welcome!</strong> Your personal career guide is here — ready to help you:<br><br>
+            ✨ Discover side hustles & unconventional career paths<br>
+            💡 Identify skill gaps & growth opportunities<br>
+            🌏 Navigate the Indian job market with confidence<br>
+            📈 Build a personal brand that gets noticed<br><br>
+            Upload your resume, share your skills, and let's explore <strong>creative, practical ways to level up your career</strong>!
+            </p>
+            """, 
+            unsafe_allow_html=True
+        )
+        
+        if "messages" not in sl.session_state:
+            sl.session_state.messages = [
+                {"role": "system", "content":
+                 '''
+                 You are an AI career advisor, creative skills mentor, and employment strategist. Your expertise includes helping users discover unconventional career paths, identify side hustles, and grow professionally, with a deep understanding of Indian culture, professional expectations, and market dynamics. You combine practical guidance with imaginative strategies for career growth.
+                 Behavior and Approach
+                 Initiate Conversation:
+                 Acknowledge the user's current career situation or job search.
+                 Frame it as an opportunity for self-discovery, skill growth, and experimentation.
+                 Ask the user to describe their goals, current strategies, challenges, and constraints (time, finances, location, family expectations).
+                 Resume Collection and Contextualization:
+                 Ask for the user's resume (CV) via file upload, text paste, or link.
+                 Accept additional context on skills, experiences, projects, and aspirations that may not appear on the resume.
+                 Treat the resume as a starting point and combine it with the user's narrative for a holistic view.
+                 Cultural Awareness:
+                 Apply Indian market knowledge, including local job expectations, competitive exams, certifications, and startup culture.
+                 Factor in family expectations, social norms, and regional professional etiquette.
+                 Consider income potential and cost of living variations in different Indian cities when providing guidance.
+                 Analysis and Recommendations
+                 Skills Assessment and Gap Analysis:
+                 Identify strengths and transferable skills.
+                 Highlight gaps relative to the user's career goals or side-hustle potential.
+                 Suggest targeted improvements: courses, certifications, micro-projects, self-study, or mentorship.
+                 Point out emerging roles and sectors in India that align with their profile.
+                 Side Hustle and Income Opportunities:
+                 Recommend realistic and imaginative ways to monetize skills in India (freelancing, consulting, digital products, teaching, niche services).
+                 Provide rough estimates of earning potential, considering Indian market rates, cost of living, and taxation.
+                 Suggest low-risk experiments and actionable first steps.
+                 Offer guidance on positioning oneself professionally, including personal branding for side hustles.
+                 Unconventional Job Search Strategies:
+                 Recommend 3-5 creative approaches beyond standard job applications:
+                 Targeted Company Projects: Pitch small projects to potential employers.
+                 Niche Community Engagement: Join forums, WhatsApp/Telegram groups, and industry-specific online communities.
+                 Content Creation for Visibility: Share blogs, videos, or posts showcasing expertise.
+                 Reverse Job Posting: Publicly describe ideal roles and invite companies to reach out.
+                 Skills-Based Volunteering: Volunteer with organizations to gain experience and network.
+                 Networking with a Twist: Informational interviews, mentorship, or collaborative projects.
+                 Tailor each suggestion to the user's skills, goals, and Indian context.
+                 Personal Branding and Presentation:
+                 Advise on LinkedIn, personal websites, portfolios, GitHub, and online presence.
+                 Show how to highlight unconventional experiences and side hustles effectively.
+                 Suggest ways to craft a professional story connecting past experience, current skills, and future goals.
+                 Behavioral and Mindset Coaching:
+                 Encourage proactive, growth-oriented thinking.
+                 Provide strategies to handle rejection, setbacks, or uncertainty.
+                 Promote reflection and iterative improvement for career decisions.
+                 Scenario Planning and Strategic Thinking:
+                 Offer short-term (1-year) and long-term (5-year) career path scenarios.
+                 Discuss risks, rewards, and fallback strategies for each approach.
+                 Suggest stretch opportunities where the user could significantly increase skills, visibility, or income.
+                 Continuous Improvement Loop:
+                 Encourage tracking results and reflecting on outcomes.
+                 Refine strategies based on what works and what doesn't.
+                 Recommend documentation of projects and learning for portfolio building.
+                 Tone and Style
+                 Supportive, encouraging, and empowering.
+                 Practical but imaginative, combining visionary guidance with actionable steps.
+                 Focus on opportunity, growth, and creative exploration, avoiding fear or limitation.
+                 '''}]
+     
+        # Display previous messages
+        for msg in sl.session_state.messages[1:]:  # skip system msg
+            with sl.chat_message(msg["role"]):
+                sl.markdown(msg["content"])
 
         # user input
-    if active_tab == "📈 Marg AI":
-        user_input = sl.chat_input("Ask Marg for guidance", accept_file = True, file_type = ["pdf", "docx"])
+        user_input = sl.chat_input("Ask Marg for guidance", accept_file=True, file_type=["pdf", "docx"])
         if user_input:
             if user_input.files:
                 uploaded_file = user_input.files[0]
                 if uploaded_file.type == "application/pdf":
                     resume_text = extract_pdf_text(uploaded_file)
-                
+            
                 sl.session_state.messages.append({"role": "user", "content": "Resume Uploaded"})
                 with sl.chat_message("user"):
                     sl.markdown("Resume Uploaded")
 
-
-                # Use the full resume text for AI analysis, but don’t display it
+                # Use the full resume text for AI analysis, but don't display it
                 prompt = "\n".join([f"{msg['role']}: {msg['content']}" for msg in sl.session_state.messages[:-1]] + 
                                    [f"user: {resume_text}"])
             
@@ -245,20 +418,28 @@ def main_page():
                 sl.session_state.messages.append({"role": "user", "content": user_text})              
                 with sl.chat_message("user"):
                     sl.markdown(user_text)
-                    prompt = "\n".join([f"{msg['role']}: {msg['content']}" for msg in sl.session_state.messages])
+                prompt = "\n".join([f"{msg['role']}: {msg['content']}" for msg in sl.session_state.messages])
 
             with sl.chat_message("assistant"):
                 with sl.spinner("Thinking..."):
-                    response = client.models.generate_content(
+                    response = client_gemini.models.generate_content(
                         model="gemini-2.5-flash", 
                         contents=prompt)
                 assistant_reply = response.text
                 sl.markdown(assistant_reply)
                 sl.session_state.messages.append({"role": "assistant", "content": assistant_reply})
-        
+
+# ============================================
+# INITIALIZE GEMINI (renamed to avoid conflict)
+# ============================================
 gemini_api = sl.secrets["Gemini_API"]
-client = genai.Client(api_key = gemini_api)
+client_gemini = genai.Client(api_key=gemini_api)
 model_id = "gemini-2.5-flash"
+
+# ============================================
+# ATS SCORER AND RESUME ANALYZER CLASSES
+# (Keep all your existing classes exactly as they are)
+# ============================================
 
 class ATSScorer:
     """ATS (Applicant Tracking System) Score Calculator"""
@@ -907,4 +1088,23 @@ class ResumeAnalyzer:
         skill_gaps.extend(missing_skills)
 
         return skill_gaps[:5]  # Top 5 skill gaps
-main_page()
+
+
+# ============================================
+# MAIN APP ENTRY POINT
+# ============================================
+if __name__ == "__main__":
+    # Check authentication
+    is_authenticated, user_id = check_authentication()
+    
+    # Handle OAuth callback
+    if not is_authenticated:
+        callback_success = handle_oauth_callback()
+        if callback_success:
+            sl.rerun()
+    
+    # Show appropriate page
+    if is_authenticated:
+        main_page()
+    else:
+        login_page()

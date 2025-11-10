@@ -5,3 +5,5 @@ google-genai
 PyPDF2
 spacy
 python-docx
+appwrite
+streamlit-cookies-manager
