@@ -3,14 +3,12 @@ from pydantic import BaseModel, Field
 from datetime import datetime
 from enum import Enum
 
-
 class LanguagePreference(str, Enum):
     """Language preference options"""
 
     ENGLISH = "english"
     HINDI = "hindi"
     HINGLISH = "hinglish"
-
 
 class FamilyBackground(str, Enum):
     """Family background categories relevant to Indian context"""
